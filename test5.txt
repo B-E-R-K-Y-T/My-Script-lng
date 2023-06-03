@@ -2,9 +2,24 @@ var x = 1;
 
 try do
     var x = 2;
+catch ObjectExcesption do
+    print "Error!";
+catch sdsds do
+    print "Err123or!";
+catch ObjectExcepstion do
+    print "Err12223or!";
+catch ObjectExcepstion do
+    print "Err12223or!";
+catch ObjectExcepstion do
+    print "Err12223or!";
 catch ObjectException do
-    print "Error :(";
+    print "Erssdsdsdsdsdr12223or!";
+catch ObjectExcepstion do
+    print "Err12223or!";
+catch ObjectExcepstion do
+    print "Err12223or!";
+catch ObjectExcsdsdeption do
+    print "Err12223or!";
 end_try
 
-print "End prog!";
-
+print "End program!";

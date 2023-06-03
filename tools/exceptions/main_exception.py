@@ -1,0 +1,2 @@
+class MainException(Exception):
+    pass

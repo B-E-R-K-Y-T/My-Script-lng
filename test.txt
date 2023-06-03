@@ -1,0 +1,21 @@
+var x = 1;
+print x;
+var y = 1;
+var z = 1;
+
+var d = x + y;
+
+d + x
+
+print "Hello world!";
+
+for i=(1,12) do
+    print x, "x";
+    print x;
+    print loop_i;
+end_loop
+
+
+
+    var ya = 1;
+    var za = 1;

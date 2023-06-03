@@ -1,0 +1,13 @@
+var x = 1;
+var y = 1;
+
+print x;
+print "Hello world!";
+
+var z = x + y;
+
+print z;
+
+for i=(1,10) do
+    print "loop_i", loop_i;
+end_loop

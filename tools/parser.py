@@ -92,7 +92,7 @@ class Parser:
         return False
 
     def is_start_loop(self):
-        if re.findall(pattern=r'[ ]*for[ ]+\w+=\(\d+,\d+\)[ ]+do', string=self.line):
+        if re.findall(pattern=r'[ ]*for[ ]+\w+=\(-?\d+,-?\d+\)[ ]+do', string=self.line):
             return True
         return False
 
@@ -107,7 +107,7 @@ class Parser:
         return False
 
     def count_repeat_in_loop(self):
-        start, stop = re.findall(pattern=r'\d+,\d+', string=self.line)[0].split(',')
+        start, stop = re.findall(pattern=r'-?\d+,-?\d+', string=self.line)[0].split(',')
 
         return int(start), int(stop)
 

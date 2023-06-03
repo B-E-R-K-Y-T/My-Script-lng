@@ -1,3 +1,5 @@
+import re
+
 from tools.exceptions.object_exceptions import TypeException
 
 
@@ -10,7 +12,7 @@ class Int:
 
     @staticmethod
     def is_int(value: str):
-        if value.isdigit():
+        if re.fullmatch(pattern=r'-?\d+', string=value):
             return True
         return False
 

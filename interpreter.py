@@ -3,8 +3,6 @@ from tools.parser import *
 from tools.types import Int, Line
 from tools.exceptions.main_exception import MainException
 
-DEBUG = True
-
 
 class Interpreter:
     def __init__(self, path: str, jump_to_num_line: int = 0, end_line: int = ..., is_loop: bool = False, **flags):
@@ -80,7 +78,7 @@ class Interpreter:
                     if end_loop is None:
                         raise SyntaxException(f'Not found end loop!')
                     else:
-                        for i in range(start, stop):
+                        for i in range(start, stop+1):
                             set_var(var_in_loop, Int(str(i)))
                             _interpreter = Interpreter(self.path, num_line, end_loop, is_loop=True)
                             _interpreter.run()

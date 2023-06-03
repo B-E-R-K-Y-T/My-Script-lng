@@ -1,0 +1,17 @@
+var x = 1;
+var y = 1000;
+
+var result = x + y;
+
+print x;
+print "RESULT: ", result;
+
+func print_x()
+    print "PRINTED: ", x;
+end_func
+
+print_x();
+
+for i=(1,5) do
+    print loop_i, x;
+end_loop

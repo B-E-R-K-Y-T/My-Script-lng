@@ -146,7 +146,7 @@ class Interpreter:
 if __name__ == '__main__':
     # commands = input('>>>').split(' ')
 
-    TEST = '/home/berkyt/PycharmProjects/MyScriptLanguage/test3.txt'
+    TEST = '/home/berkyt/PycharmProjects/MyScriptLanguage/all_test.txt'
 
     interpreter = Interpreter(TEST)
     interpreter.run()

@@ -1,0 +1,43 @@
+func test(x, y)
+    print func_x, func_y;
+end_func
+
+test(1, 2);
+
+
+print "END_PROGRAM";
+
+
+
+
+func test_2(x)
+    for _=(1,4) do
+        print func_x;
+    end_loop
+end_func
+
+
+test_2("GHBDTN");
+
+try do
+    test_2("GHBDTN", sad);
+catch SyntaxExceptwion do
+    print "Error! SyntaxException 1112";
+catch SyntaxExceptiown do
+    print "Error! 222";
+catch SyntaxExceqwption do
+    print "Error! 222";
+catch SyntaxException do
+    print "Error! 222232";
+end_try
+
+# test_2("GHBDTN");
+# test_2("GHBDTN");
+
+
+
+func f()
+    print "HELLO";
+end_func
+
+f();

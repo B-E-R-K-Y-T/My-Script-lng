@@ -1,12 +1,13 @@
 import re
 
-from data.operators import *
-from tools.exceptions.object_exceptions import ObjectException
+from data.operators import EQUAL
+from tools.exceptions.object_exceptions import ObjectException, TypeException
 from tools.exceptions.syntax_exceptions import SyntaxException
-from tools.types import *
+from tools.types import Int, Line
 
 _tree_variables = {}
 _tree_functions = {}
+_tree_try_catch = {}
 
 
 def get_vars():
@@ -21,7 +22,6 @@ def get_var(key):
 
 
 def set_var(key, value):
-    key = key
     _tree_variables[key] = value
 
 
@@ -35,6 +35,14 @@ def is_var_exists(key):
     return False if var is None else True
 
 
+def get_try_catchs():
+    return _tree_try_catch
+
+
+def set_try_catch(key, value):
+    _tree_try_catch[key] = value
+
+
 def get_func(key):
     if not is_func_exists(key):
         raise ObjectException(f'This function "{key}" not exist!')
@@ -46,9 +54,8 @@ def get_table_functions():
     return _tree_functions
 
 
-def set_func(key, value: tuple[int, int]):
-    key = key
-    _tree_functions[key] = value
+def set_func(key, borders: tuple[int, int], args: dict = ...):
+    _tree_functions[key] = {'borders': borders, 'args': args}
 
 
 def delete_func(key):
@@ -114,10 +121,49 @@ class Function:
 
         return self.line_var[:idx_end].replace(' ', '')
 
+    def get_args(self):
+        idx_start = self.line_var.find('(')
+        idx_end = self.line_var.find(')')
+
+        args = self.line_var[idx_start+1:idx_end].split(',')
+        args = [arg.replace(' ', '') if arg.replace(' ', '').isdigit() else arg for arg in args]
+
+        if len(args) == 1 and not args[0]:
+            return []
+
+        return args
+    
+    def get_name_args(self):
+        idx_start = self.line_var.find('(')
+        idx_end = self.line_var.find(')')
+
+        args = self.line_var[idx_start+1:idx_end].split(',')
+        args = [arg.replace(' ', '') for arg in args]
+
+        return args
+
 
 class Parser:
     def __init__(self, line: str):
         self.line = line
+
+    def is_try(self):
+        if re.findall(pattern=r'[ ]*try[ ]+do', string=self.line):
+            return True
+        return False
+
+    def is_end_try(self):
+        if re.findall(pattern=r'[ ]*end_try', string=self.line):
+            return True
+        return False
+
+    def get_exception(self):
+        return re.findall(pattern=r'[ ]*(?<=catch)[ ]*[\w\d]+[ ]*(?=do)', string=self.line)[0].replace(' ', '')
+
+    def is_catch(self):
+        if re.findall(pattern=r'[ ]*catch[ ]*[\w\d]+[ ]*do', string=self.line):
+            return True
+        return False
 
     def is_variable(self):
         if re.findall(pattern=r'[ ]*var[ ]+\w+[ ]+=[ ]+[\w\d\"]+;', string=self.line):
@@ -168,7 +214,7 @@ class Parser:
         return False
 
     def is_call_func(self):
-        if re.findall(pattern=r'[ ]*[\w_]+\([\w_\d]*\);', string=self.line):
+        if re.findall(pattern=r'[ ]*[\w_]+\([\w_\d, "]*\);', string=self.line):
             return True
         return False
 
@@ -187,7 +233,12 @@ class Parser:
             if '"' not in r:
                 r = r.replace(' ', '')
 
-                res.append(get_var(r).get_value())
+                var = get_var(r).get_value()
+
+                if isinstance(var, str):
+                    var = var.replace('"', '')
+
+                res.append(var)
             else:
                 idx_l = r.find('"')
                 idx_r = r.rfind('"')

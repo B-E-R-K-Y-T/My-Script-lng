@@ -1,17 +1,45 @@
+from data.operators import ALL_OPERATORS
 from tools.debug import print_debug, DEBUG
 from tools.parser import *
 from tools.types import Int, Line
 from tools.exceptions.main_exception import MainException
+from tools.try_catch import Catch, StateCatch
 
 
 class Interpreter:
-    def __init__(self, path: str, jump_to_num_line: int = 0, end_line: int = ..., is_loop: bool = False, **flags):
+    def __init__(self, path: str, jump_to_num_line: int = 0, end_line: int = ...,
+                 is_loop: bool = False, init_calls: bool = True, **flags):
         self.file = open(path)
         self.path = path
         self.jump_to_num_line = jump_to_num_line
         self.end_line = end_line
         self.is_loop = is_loop
-        self.save_funcs()
+        self.init_calls = init_calls
+        if init_calls:
+            self.save_funcs()
+            self.save_try_catch()
+
+    def save_try_catch(self):
+        try_num = 0
+
+        for num_line, line in enumerate(open(self.path)):
+            par = Parser(line)
+
+            if par.is_commentary():
+                continue
+
+            if par.is_try():
+                try_num = num_line
+                try_obj = {f'try_{num_line}': {'catchs': [{'num_line': ..., 'obj_exc': ...}]}}
+                set_try_catch(f'try_{num_line}', try_obj[f'try_{num_line}'])
+            elif par.is_catch():
+                try_obj = get_try_catchs()
+                try_obj[f'try_{try_num}']['catchs'].append({'num_line': num_line, 'obj_exc': par.get_exception()})
+            elif par.is_end_try():
+                try_obj = get_try_catchs()
+                try_obj[f'try_{try_num}']['end'] = num_line
+                break
+            print_debug(get_try_catchs())
 
     def save_funcs(self):
         name_func = ''
@@ -22,15 +50,21 @@ class Interpreter:
             if par.is_func():
                 func = Function(line)
                 name_func = func.get_name_func()
-                set_func(name_func, (num_line+1, 0))
+
+                args = {'func_' + name: ... for name in func.get_name_args() if name}
+
+                set_func(name_func, borders=(num_line+1, 0), args=args)
             elif par.is_end_func():
                 func = get_func(name_func)
-                set_func(name_func, (func[0], num_line))
+
+                set_func(name_func, (func['borders'][0], num_line), func['args'])
 
     @staticmethod
     def is_border(num_line):
         num_line = int(num_line)
-        for borders in get_table_functions().values():
+        for attrs in get_table_functions().values():
+            borders = attrs['borders']
+
             if borders[0] < num_line < borders[1] + 1:
                 return True
 
@@ -56,11 +90,56 @@ class Interpreter:
         else:
             for i in range(start_num, end_num + 1):
                 set_var(name_var, Int(str(i)))
-                _interpreter = Interpreter(self.path, start_line, end_loop, is_loop=True)
+                _interpreter = Interpreter(self.path, start_line, end_loop, is_loop=True, init_calls=False)
                 _interpreter.run(False)
 
             delete_var(name_var)
         return end_loop
+
+    @staticmethod
+    def save_args_for_call_func(args, name_args):
+        translate_table = {
+            Int.__name__: Int,
+            Line.__name__: Line,
+        }
+
+        for arg, name_arg in zip(args, name_args):
+            var = Var(arg)
+            if var.get_type(arg) not in [Int, Line]:
+                raise TypeException(f'{arg} is invalid!')
+            else:
+                set_var(name_arg, translate_table[var.get_type(arg).__name__](arg))
+
+    @staticmethod
+    def count_send_args_is_valid(to_args, from_args):
+        if len(to_args) == len(from_args):
+            return True
+        return False
+
+    def handler_exception(self, num_line_exc: int, exc: MainException):
+        exceptions = get_try_catchs()
+        for exc_key in exceptions:
+            start, end = int(exc_key[4:]), int(exceptions[exc_key]['catchs'][1]['num_line'])
+
+            if start <= num_line_exc <= end:
+                e = Catch(exc)
+                exc_name = str(exc.__class__.__name__)
+
+                if exc_name not in e.get_handlers(exceptions):
+                    return StateCatch.FAILED
+
+                start, end, jump = e.handler_error(e.get_handlers(exceptions))
+
+                print(start, end, jump)
+
+                _interpreter = Interpreter(self.path, start, end, init_calls=False)
+                _interpreter.run(check_border=False)
+
+                self.jump_to_num_line = jump
+
+                return StateCatch.PROCESSED
+
+        return StateCatch.FAILED
 
     def run(self, check_border: bool = True):
         for num_line, line in enumerate(self.file):
@@ -68,6 +147,8 @@ class Interpreter:
 
             if num_line < self.jump_to_num_line:
                 continue
+
+            # print(num_line, line)
 
             if self.end_line is not ...:
                 if num_line > self.end_line:
@@ -125,20 +206,41 @@ class Interpreter:
                     print_debug('CALL_FUNCTION', line)
                     print_debug(get_table_functions())
 
+                    func_args = Function(line).get_args()
+
                     func = get_func(Function(line).get_name_call_func())
 
-                    _interpreter = Interpreter(self.path, func[0], func[1])
+                    if not self.count_send_args_is_valid(func_args, list(func['args'].keys())):
+                        raise SyntaxException(f'{func_args}({len(func_args)}) arguments were passed, and '
+                                              f'{list(func["args"].keys())}({len(list(func["args"].keys()))}) '
+                                              f'were expected')
+
+                    self.save_args_for_call_func(func_args, func['args'].keys())
+
+                    _interpreter = Interpreter(self.path, func['borders'][0], func['borders'][1])
                     _interpreter.run(check_border=False)
                 elif par.is_func():
+                    continue
+                elif par.is_try():
+                    continue
+                elif par.is_catch():
+                    continue
+                elif par.is_end_try():
                     continue
                 else:
                     if not self.is_loop and line.replace('\n', '') not in ALL_OPERATORS:
                         raise SyntaxException(f'Invalid syntax: {line=}')
             except MainException as e:
-                print(f'{num_line=}\n\t{e}')
                 if DEBUG:
                     raise
-                break
+
+                res = self.handler_exception(num_line, e)
+
+                if res == StateCatch.FAILED:
+                    print(f'{num_line=}\n\t{e}')
+                    break
+
+                continue
 
         print_debug(get_vars())
 
@@ -146,7 +248,7 @@ class Interpreter:
 if __name__ == '__main__':
     # commands = input('>>>').split(' ')
 
-    TEST = '/home/berkyt/PycharmProjects/MyScriptLanguage/all_test.txt'
+    TEST = '/home/berkyt/PycharmProjects/MyScriptLanguage/test4.txt'
 
     interpreter = Interpreter(TEST)
     interpreter.run()

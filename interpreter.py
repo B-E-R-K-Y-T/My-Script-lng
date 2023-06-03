@@ -6,6 +6,10 @@ from tools.parser import *
 from tools.types import Int, Line
 from tools.exceptions.main_exception import MainException
 from tools.try_catch import Catch, StateCatch
+from colorama import init
+from colorama import Fore
+
+init()
 
 
 class Interpreter:
@@ -219,11 +223,7 @@ class Interpreter:
                     _interpreter.run(check_border=False)
                 elif par.is_func():
                     continue
-                elif par.is_try():
-                    continue
                 elif par.is_catch():
-                    continue
-                elif par.is_end_try():
                     continue
                 else:
                     if not self.is_loop and line.replace('\n', '') not in ALL_OPERATORS:
@@ -235,7 +235,7 @@ class Interpreter:
                 res = self.handler_exception(num_line, e)
 
                 if res == StateCatch.FAILED:
-                    print(f'{num_line=}\n\t{e}')
+                    print(Fore.RED + f'{num_line=}, {line=}\n\t{e}')
                     sys.exit()
 
                 continue

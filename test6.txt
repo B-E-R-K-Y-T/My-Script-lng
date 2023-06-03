@@ -20,3 +20,11 @@ end_loop
 
 test_arg(1, 2, "Hello");
 
+try do
+    test_arg(1, 2, "Hello", 4);
+catch SyntaxException do
+    print "SyntaxException 1";
+end_try
+
+print "End program";
+

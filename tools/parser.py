@@ -153,10 +153,10 @@ class Function:
 
 class Parser:
     def __init__(self, line: str):
-        self.line = line
+        self.line = line.replace('\n', '')
 
     def is_try(self):
-        if re.findall(pattern=r'[ ]*try[ ]+do', string=self.line):
+        if re.findall(pattern=r'[ ]*try[ ]+do', string=self.line) and self.line.endswith('do'):
             return True
         return False
 
@@ -169,7 +169,7 @@ class Parser:
         return re.findall(pattern=r'[ ]*(?<=catch)[ ]*[\w\d]+[ ]*(?=do)', string=self.line)[0].replace(' ', '')
 
     def is_catch(self):
-        if re.findall(pattern=r'[ ]*catch[ ]*[\w\d]+[ ]*do', string=self.line):
+        if re.findall(pattern=r'[ ]*catch[ ]*[\w\d]+[ ]*do', string=self.line) and self.line.endswith('do'):
             return True
         return False
 
@@ -232,8 +232,8 @@ class Parser:
         return False
 
     def get_data_from_print(self):
-        args = self.line[:-2].split('print')
-        args = [arg.replace('\n', '') for arg in args if not arg.isspace() and arg][0].split(',')
+        args = self.line[:-1].split('print')
+        args = [arg for arg in args if not arg.isspace() and arg][0].split(',')
 
         res = []
 

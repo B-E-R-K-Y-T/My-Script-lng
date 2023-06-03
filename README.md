@@ -19,7 +19,6 @@ end_loop
 ```
 
 Вывод: 
-
 ```
 >>>/home/berkyt/PycharmProjects/MyScriptLanguage/test2.txt
 1
@@ -36,4 +35,39 @@ loop_i 8
 loop_i 9
 
 ```
+
+Пример кода2
+```
+var x = 1;
+var y = 1000;
+
+var result = x + y;
+
+print x;
+print "RESULT: ", result;
+
+func print_x()
+    print "PRINTED: ", x;
+end_func
+
+print_x();
+
+for i=(1,5) do
+    print loop_i, x;
+end_loop
+```
+
+Вывод: 
+```
+1
+RESULT:  1001
+PRINTED:  1
+1 1
+2 1
+3 1
+4 1
+5 1
+```
+
+
 https://www.youtube.com/watch?v=92IjrA362AI

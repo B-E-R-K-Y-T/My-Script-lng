@@ -69,5 +69,26 @@ PRINTED:  1
 5 1
 ```
 
+Пример try catch:
+```
+var x = 1;
+
+try do
+    var x = 2
+catch ObjectException do
+    print "ObjectException 1";
+catch SyntaxException do
+    print "SyntaxException 2";
+end_try
+
+print x;
+```
+
+Вывод:
+```
+SyntaxException 2
+1
+```
+
 
 https://www.youtube.com/watch?v=92IjrA362AI

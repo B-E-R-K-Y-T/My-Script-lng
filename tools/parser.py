@@ -219,7 +219,7 @@ class Parser:
 
         return int(start), int(stop)
 
-    def get_var_in_loop(self) -> bool:
+    def get_var_in_loop(self) -> str:
         return 'loop_' + re.findall(pattern=r'\w+=', string=self.line)[0].replace('=', '')
 
     def is_func(self) -> bool:

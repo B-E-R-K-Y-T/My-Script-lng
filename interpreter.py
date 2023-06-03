@@ -260,9 +260,9 @@ class Interpreter:
 
 
 if __name__ == '__main__':
-    # commands = input('>>>').split(' ')
+    commands = input('Enter path to script >>>').split(' ')
 
     TEST = f'/home/berkyt/PycharmProjects/MyScriptLanguage/test7.txt'
 
-    interpreter = Interpreter(TEST)
+    interpreter = Interpreter(commands[0])
     interpreter.run()

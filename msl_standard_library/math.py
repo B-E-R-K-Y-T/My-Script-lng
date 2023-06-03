@@ -10,6 +10,10 @@ def Len(seq):
     print(len(seq))
 
 
+def Max(*args):
+    print(max(args))
+
+
 if __name__ == '__main__':
     Sum(1, 2, 3)
 

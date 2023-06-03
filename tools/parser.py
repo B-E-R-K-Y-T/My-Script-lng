@@ -232,7 +232,7 @@ class Parser:
         return False
 
     def is_call_func(self):
-        if re.findall(pattern=r'[ ]*[\w_]+\([\w_\d, "]*\);', string=self.line):
+        if re.findall(pattern=r'[ ]*[\w_]+\([\w_\d, "-]*\);', string=self.line):
             return True
         return False
 

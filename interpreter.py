@@ -60,7 +60,7 @@ class Interpreter:
 
                 args = {'func_' + name: ... for name in func.get_name_args() if name}
 
-                set_func(name_func, borders=(num_line+1, 0), args=args)
+                set_func(name_func, borders=(num_line + 1, 0), args=args)
             elif par.is_end_func():
                 func = get_func(name_func)
 
@@ -225,8 +225,6 @@ class Interpreter:
                                               f'{list(func["args"].keys())}({len(list(func["args"].keys()))}) '
                                               f'were expected')
 
-
-
                     self.save_args_for_call_func(func_args, func['args'].keys())
 
                     _interpreter = Interpreter(self.path, func['borders'][0], func['borders'][1])
@@ -256,7 +254,7 @@ class Interpreter:
 if __name__ == '__main__':
     # commands = input('>>>').split(' ')
 
-    TEST = f'/home/berkyt/PycharmProjects/MyScriptLanguage/test6.txt'
+    TEST = f'/home/berkyt/PycharmProjects/MyScriptLanguage/test7.txt'
 
     interpreter = Interpreter(TEST)
     interpreter.run()

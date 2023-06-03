@@ -12,7 +12,7 @@ class Int:
 
     @staticmethod
     def is_int(value: str):
-        if re.fullmatch(pattern=r'-?\d+', string=value):
+        if re.fullmatch(pattern=r'[ ]?-?\d+', string=value):
             return True
         return False
 

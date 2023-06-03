@@ -8,6 +8,7 @@ from tools.exceptions.main_exception import MainException
 from tools.try_catch import Catch, StateCatch
 from colorama import init
 from colorama import Fore
+from tools.convert_python_func_to_msl import call_standard_func, find_func, is_func_accepts_inf_args
 
 init()
 
@@ -104,17 +105,12 @@ class Interpreter:
 
     @staticmethod
     def save_args_for_call_func(args, name_args):
-        translate_table = {
-            Int.__name__: Int,
-            Line.__name__: Line,
-        }
-
         for arg, name_arg in zip(args, name_args):
             var = Var(arg)
             if var.get_type(arg) not in [Int, Line]:
                 raise TypeException(f'{arg} is invalid!')
             else:
-                set_var(name_arg, translate_table[var.get_type(arg).__name__](arg))
+                set_var(name_arg, CONVERT_TABLE[var.get_type(arg).__name__](arg))
 
     @staticmethod
     def count_send_args_is_valid(to_args, from_args):
@@ -204,11 +200,23 @@ class Interpreter:
                 elif par.is_print():
                     print(*par.get_data_from_print())
                 elif par.is_call_func():
+                    func_name = par.get_name_func()
+
                     print_debug(num_line, line)
                     print_debug('CALL_FUNCTION', line)
                     print_debug(get_table_functions())
 
                     func_args = Function(line).get_args()
+
+                    if find_func(func_name):
+                        if not is_func_accepts_inf_args(find_func(func_name)['args']):
+                            if not self.count_send_args_is_valid(func_args, list(find_func(func_name)['args'])):
+                                raise SyntaxException(f'{func_args}({len(func_args)}) arguments were passed, and '
+                                                      f'{list(find_func(func_name)["args"])}'
+                                                      f'({len(list(find_func(func_name)["args"]))})'
+                                                      f'were expected')
+                        call_standard_func(func_name, *func_args)
+                        continue
 
                     func = get_func(Function(line).get_name_call_func())
 
@@ -216,6 +224,8 @@ class Interpreter:
                         raise SyntaxException(f'{func_args}({len(func_args)}) arguments were passed, and '
                                               f'{list(func["args"].keys())}({len(list(func["args"].keys()))}) '
                                               f'were expected')
+
+
 
                     self.save_args_for_call_func(func_args, func['args'].keys())
 

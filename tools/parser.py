@@ -8,6 +8,10 @@ from tools.types import Int, Line
 _tree_variables = {}
 _tree_functions = {}
 _tree_try_catch = {}
+CONVERT_TABLE = {
+    Int.__name__: Int,
+    Line.__name__: Line,
+}
 
 
 def get_vars():
@@ -215,6 +219,12 @@ class Parser:
         if re.findall(pattern=r'[ ]*func[ ]+[\w_]+', string=self.line):
             return True
         return False
+
+    def get_name_func(self):
+        func = self.line.replace(' ', '')
+        idx_end = func.rfind('(')
+
+        return func[:idx_end]
 
     def is_end_func(self):
         if re.findall(pattern=r'[ ]*end_func', string=self.line):

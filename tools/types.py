@@ -28,7 +28,7 @@ class Line:
         if not self.is_line(value):
             raise TypeException(f'This object "{value}" is not {Line.__name__}!')
 
-        self.value = value
+        self.value = value.replace('"', '')
 
     @staticmethod
     def is_line(value: str):

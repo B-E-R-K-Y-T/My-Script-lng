@@ -31,8 +31,8 @@ catch SyntaxException do
     print "Error! 222232";
 end_try
 
-# test_2("GHBDTN");
-# test_2("GHBDTN");
+test_2("GHBDTN");
+test_2("GHBDTN");
 
 
 
@@ -41,3 +41,7 @@ func f()
 end_func
 
 f();
+
+var _x = 123123123;
+
+print _x;

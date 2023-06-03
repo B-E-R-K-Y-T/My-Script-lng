@@ -23,7 +23,7 @@ class Catch:
                 if exc_name in exc.values():
                     start = exc['num_line'] + 1
 
-                    if idx+1 <= len(exceptions[exc_key]['catchs'][idx]):
+                    if idx+1 < len(exceptions[exc_key]['catchs'][idx]):
                         end = exceptions[exc_key]['catchs'][idx+1]['num_line'] + 1
                     else:
                         end = exceptions[exc_key]['end'] + 1

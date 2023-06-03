@@ -1,0 +1,10 @@
+var x = 1;
+
+try do
+    var x = 2;
+catch ObjectException do
+    print "Error :(";
+end_try
+
+print "End prog!";
+

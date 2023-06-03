@@ -130,8 +130,6 @@ class Interpreter:
 
                 start, end, jump = e.handler_error(e.get_handlers(exceptions))
 
-                print(start, end, jump)
-
                 _interpreter = Interpreter(self.path, start, end, init_calls=False)
                 _interpreter.run(check_border=False)
 
@@ -147,8 +145,6 @@ class Interpreter:
 
             if num_line < self.jump_to_num_line:
                 continue
-
-            # print(num_line, line)
 
             if self.end_line is not ...:
                 if num_line > self.end_line:
@@ -248,7 +244,7 @@ class Interpreter:
 if __name__ == '__main__':
     # commands = input('>>>').split(' ')
 
-    TEST = '/home/berkyt/PycharmProjects/MyScriptLanguage/test4.txt'
+    TEST = f'/home/berkyt/PycharmProjects/MyScriptLanguage/test5.txt'
 
     interpreter = Interpreter(TEST)
     interpreter.run()

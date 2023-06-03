@@ -2,10 +2,10 @@ import sys
 
 from data.operators import ALL_OPERATORS
 from tools.debug import print_debug, DEBUG
-from tools.exceptions.object_exceptions import FunctionException, TypeException
+from tools.exceptions.object_exceptions import FunctionException, TypeException, ObjectException
 from tools.exceptions.syntax_exceptions import SyntaxException
-from tools.parser import Parser, set_try_catch, get_try_catchs, Function, set_func, get_func, get_table_functions, \
-    set_var, delete_var, Var, CONVERT_TABLE, is_var_exists, get_var, get_vars
+from tools.parser import (Parser, set_try_catch, get_try_catchs, Function, set_func, get_func, get_table_functions,
+                          set_var, delete_var, Var, CONVERT_TABLE, is_var_exists, get_var, get_vars)
 from tools.types import Int, Line
 from tools.exceptions.main_exception import MainException
 from tools.try_catch import Catch, StateCatch
@@ -185,6 +185,9 @@ class Interpreter:
                         if is_var_exists(a) and is_var_exists(b):
                             if isinstance(get_var(a), Int) and isinstance(get_var(b), Int):
                                 res = int(get_var(a).get_value()) + int(get_var(b).get_value())
+
+                        if res is None:
+                            raise ObjectException(f'The expression returned None.')
 
                     var.save_var(var.get_key(), str(res))
                 elif par.is_added():

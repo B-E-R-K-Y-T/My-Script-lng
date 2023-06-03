@@ -32,7 +32,7 @@ class Catch:
 
                     return start, end, jump
 
-        return 0, 0
+        return None, None, None
 
     @staticmethod
     def get_handlers(tree_exc: dict):

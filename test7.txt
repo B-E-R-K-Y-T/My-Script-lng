@@ -1,4 +1,9 @@
 
 
 Max(1, 2, 123);
-Doc("Max");
+try do
+    Doc("Max");
+catch FunctionException do
+    print "Ok";
+end_try
+

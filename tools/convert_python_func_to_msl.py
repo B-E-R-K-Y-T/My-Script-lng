@@ -19,7 +19,7 @@ MSL_CONVERT_TABLE = {
 }
 
 
-def call_standard_func(name, *args):
+def call_standard_func(name: str, *args):
     res = []
 
     for arg in args:
@@ -35,11 +35,11 @@ def call_standard_func(name, *args):
     _tree_standard_functions[name]['func'](*res)
 
 
-def find_func(name):
+def find_func(name: str):
     return _tree_standard_functions.get(name)
 
 
-def is_func_accepts_inf_args(args_signature: list):
+def is_func_accepts_inf_args(args_signature: list) -> bool:
     if len(args_signature) == 1 and args_signature[0] == -1:
         return True
     return False

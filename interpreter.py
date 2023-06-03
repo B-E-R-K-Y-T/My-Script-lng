@@ -70,15 +70,16 @@ class Interpreter:
                 set_func(name_func, (func['borders'][0], num_line), func['args'])
 
     @staticmethod
-    def is_border(num_line):
-        num_line = int(num_line)
+    def is_border(num_line: int) -> bool:
         for attrs in get_table_functions().values():
             borders = attrs['borders']
 
             if borders[0] < num_line < borders[1] + 1:
                 return True
 
-    def loop_worker(self, start_line, start_num, end_num, name_var):
+        return False
+
+    def loop_worker(self, start_line: int, start_num: int, end_num: int, name_var: str) -> int:
         end_loop = None
 
         for num_line, line in enumerate(open(self.path)):
@@ -107,7 +108,7 @@ class Interpreter:
         return end_loop
 
     @staticmethod
-    def save_args_for_call_func(args, name_args):
+    def save_args_for_call_func(args: list, name_args: list):
         for arg, name_arg in zip(args, name_args):
             var = Var(arg)
             if var.get_type(arg) not in [Int, Line]:
@@ -116,12 +117,12 @@ class Interpreter:
                 set_var(name_arg, CONVERT_TABLE[var.get_type(arg).__name__](arg))
 
     @staticmethod
-    def count_send_args_is_valid(to_args, from_args):
+    def count_send_args_is_valid(to_args: list, from_args: list) -> bool:
         if len(to_args) == len(from_args):
             return True
         return False
 
-    def handler_exception(self, num_line_exc: int, exc: MainException):
+    def handler_exception(self, num_line_exc: int, exc: MainException) -> StateCatch:
         exceptions = get_try_catchs()
         for exc_key in exceptions:
             start, end = int(exc_key[4:]), int(exceptions[exc_key]['catchs'][1]['num_line'])
@@ -260,9 +261,9 @@ class Interpreter:
 
 
 if __name__ == '__main__':
-    commands = input('Enter path to script >>>').split(' ')
+    # commands = input('Enter path to script >>>').split(' ')
 
-    TEST = f'/home/berkyt/PycharmProjects/MyScriptLanguage/test7.txt'
+    TEST = f'/home/berkyt/PycharmProjects/MyScriptLanguage/test6.txt'
 
-    interpreter = Interpreter(commands[0])
+    interpreter = Interpreter(TEST)
     interpreter.run()

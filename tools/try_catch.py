@@ -10,7 +10,7 @@ class Catch:
     def __init__(self, obj_exc: Exception):
         self.obj_exc = obj_exc
 
-    def handler_error(self, handlers):
+    def handler_error(self, handlers: list) -> tuple:
         exc_name = str(self.obj_exc.__class__.__name__)
 
         if exc_name not in handlers:
@@ -35,7 +35,7 @@ class Catch:
         return None, None, None
 
     @staticmethod
-    def get_handlers(tree_exc: dict):
+    def get_handlers(tree_exc: dict) -> list:
         res = []
 
         for exc_key in tree_exc:

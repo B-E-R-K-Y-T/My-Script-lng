@@ -166,93 +166,93 @@ class Parser:
     def __init__(self, line: str):
         self.line = line.replace('\n', '')
 
-    def is_try(self):
+    def is_try(self) -> bool:
         if re.findall(pattern=r'[ ]*try[ ]+do', string=self.line) and self.line.endswith('do'):
             return True
         return False
 
-    def is_end_try(self):
+    def is_end_try(self) -> bool:
         if re.findall(pattern=r'[ ]*end_try', string=self.line):
             return True
         return False
 
-    def get_exception(self):
+    def get_exception(self) -> bool:
         return re.findall(pattern=r'[ ]*(?<=catch)[ ]*[\w\d]+[ ]*(?=do)', string=self.line)[0].replace(' ', '')
 
-    def is_catch(self):
+    def is_catch(self) -> bool:
         if re.findall(pattern=r'[ ]*catch[ ]*[\w\d]+[ ]*do', string=self.line) and self.line.endswith('do'):
             return True
         return False
 
-    def is_variable(self):
+    def is_variable(self) -> bool:
         if re.findall(pattern=r'[ ]*var[ ]+\w+[ ]+=[ ]+[\w\d\"]+;', string=self.line):
             return True
         return False
 
-    def is_calculated_variable(self):
+    def is_calculated_variable(self) -> bool:
         if re.findall(pattern=r'[ ]*var[ ]+\w+[ ]+=[ ]+[\w\d]+[ ]*\+[ ]*[\w\d]+;', string=self.line):
             return True
         return False
 
-    def is_added(self):
+    def is_added(self) -> bool:
         if re.findall(pattern=r'[\w\d]+[ ]*\+[ ]*[\w\d]+', string=self.line):
             return True
         return False
 
-    def is_start_loop(self):
+    def is_start_loop(self) -> bool:
         if re.findall(pattern=r'[ ]*for[ ]+\w+=\(-?\d+,-?\d+\)[ ]+do', string=self.line):
             return True
         return False
 
-    def is_end_loop(self):
+    def is_end_loop(self) -> bool:
         if re.findall(pattern=r'[ ]*end_loop', string=self.line):
             return True
         return False
 
-    def is_commentary(self):
+    def is_commentary(self) -> bool:
         if re.findall(pattern=r'[ ]*#.+', string=self.line):
             return True
         return False
 
-    def count_repeat_in_loop(self):
+    def count_repeat_in_loop(self) -> tuple:
         start, stop = re.findall(pattern=r'-?\d+,-?\d+', string=self.line)[0].split(',')
 
         return int(start), int(stop)
 
-    def get_var_in_loop(self):
+    def get_var_in_loop(self) -> bool:
         return 'loop_' + re.findall(pattern=r'\w+=', string=self.line)[0].replace('=', '')
 
-    def is_func(self):
+    def is_func(self) -> bool:
         if re.findall(pattern=r'[ ]*func[ ]+[\w_]+', string=self.line):
             return True
         return False
 
-    def get_name_call_func(self):
+    def get_name_call_func(self) -> str:
         func = self.line.replace(' ', '')
         idx_end = func.rfind('(')
 
         return func[:idx_end]
 
-    def get_name_defined_func(self):
+    def get_name_defined_func(self) -> str:
         name_func = replace_dict(re.findall(pattern=r'[ ]*func[ ]+[\w_]+', string=self.line)[0], {'func': '', ' ': ''})
         return name_func
 
-    def is_end_func(self):
+    def is_end_func(self) -> bool:
         if re.findall(pattern=r'[ ]*end_func', string=self.line):
             return True
         return False
 
-    def is_call_func(self):
+    def is_call_func(self) -> bool:
         if re.findall(pattern=r'[ ]*[\w_]+\([\w_\d, "-]*\);', string=self.line):
             return True
         return False
 
-    def is_print(self):
+    def is_print(self) -> bool:
         if re.findall(pattern=r'[ ]*print[ ]+[\w,\" !№;%:?*()_+]+;', string=self.line):
             return True
         return False
 
-    def get_data_from_print(self):
+    def get_data_from_print(self) -> list:
         args = self.line[:-1].split('print')
         args = [arg for arg in args if not arg.isspace() and arg][0].split(',')
 

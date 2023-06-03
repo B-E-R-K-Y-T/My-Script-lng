@@ -11,7 +11,7 @@ class Int:
         self.value = int(value)
 
     @staticmethod
-    def is_int(value: str):
+    def is_int(value: str) -> bool:
         if re.fullmatch(pattern=r'[ ]?-?\d+', string=value):
             return True
         return False
@@ -19,7 +19,7 @@ class Int:
     def add(self, other: int):
         return self.value + other
 
-    def get_value(self):
+    def get_value(self) -> int:
         return self.value
 
 
@@ -31,12 +31,12 @@ class Line:
         self.value = value.replace('"', '')
 
     @staticmethod
-    def is_line(value: str):
+    def is_line(value: str) -> bool:
         if value.startswith('"') and value.endswith('"'):
             return True
         return False
 
-    def get_value(self):
+    def get_value(self) -> str:
         return self.value
 
 

@@ -6,6 +6,7 @@ from tools.exceptions.syntax_exceptions import SyntaxException
 from tools.types import *
 
 _tree_variables = {}
+_tree_functions = {}
 
 
 def get_vars():
@@ -32,6 +33,32 @@ def is_var_exists(key):
     var = _tree_variables.get(key)
 
     return False if var is None else True
+
+
+def get_func(key):
+    if not is_func_exists(key):
+        raise ObjectException(f'This function "{key}" not exist!')
+    else:
+        return _tree_functions[key]
+
+
+def get_table_functions():
+    return _tree_functions
+
+
+def set_func(key, value: tuple[int, int]):
+    key = key
+    _tree_functions[key] = value
+
+
+def delete_func(key):
+    del _tree_functions[key]
+
+
+def is_func_exists(key):
+    func = _tree_functions.get(key)
+
+    return False if func is None else True
 
 
 class Var:
@@ -70,6 +97,22 @@ class Var:
                 _tree_variables[key] = Line(value)
             else:
                 raise TypeException(f'Error type!')
+
+
+class Function:
+    def __init__(self, line_var: str):
+        self.line_var = line_var
+
+    def get_name_func(self):
+        name = self.line_var.split('func', 1)
+        idx_end = name[1].find('(')
+
+        return ''.join(name[1][:idx_end]).replace(' ', '')
+
+    def get_name_call_func(self):
+        idx_end = self.line_var.find('(')
+
+        return self.line_var[:idx_end].replace(' ', '')
 
 
 class Parser:
@@ -113,6 +156,21 @@ class Parser:
 
     def get_var_in_loop(self):
         return 'loop_' + re.findall(pattern=r'\w+=', string=self.line)[0].replace('=', '')
+
+    def is_func(self):
+        if re.findall(pattern=r'[ ]*func[ ]+[\w_]+', string=self.line):
+            return True
+        return False
+
+    def is_end_func(self):
+        if re.findall(pattern=r'[ ]*end_func', string=self.line):
+            return True
+        return False
+
+    def is_call_func(self):
+        if re.findall(pattern=r'[ ]*[\w_]+\([\w_\d]*\);', string=self.line):
+            return True
+        return False
 
     def is_print(self):
         if re.findall(pattern=r'[ ]*print[ ]+[\w,\" !№;%:?*()_+]+;', string=self.line):

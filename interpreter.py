@@ -1,4 +1,4 @@
-from tools.debug import print_debug
+from tools.debug import print_debug, DEBUG
 from tools.parser import *
 from tools.types import Int, Line
 from tools.exceptions.main_exception import MainException
@@ -11,9 +11,60 @@ class Interpreter:
         self.jump_to_num_line = jump_to_num_line
         self.end_line = end_line
         self.is_loop = is_loop
+        self.save_funcs()
 
-    def run(self):
+    def save_funcs(self):
+        name_func = ''
+
+        for num_line, line in enumerate(open(self.path)):
+            par = Parser(line)
+
+            if par.is_func():
+                func = Function(line)
+                name_func = func.get_name_func()
+                set_func(name_func, (num_line+1, 0))
+            elif par.is_end_func():
+                func = get_func(name_func)
+                set_func(name_func, (func[0], num_line))
+
+    @staticmethod
+    def is_border(num_line):
+        num_line = int(num_line)
+        for borders in get_table_functions().values():
+            if borders[0] < num_line < borders[1] + 1:
+                return True
+
+    def loop_worker(self, start_line, start_num, end_num, name_var):
+        end_loop = None
+
+        for num_line, line in enumerate(open(self.path)):
+
+            if num_line < start_line:
+                continue
+
+            par = Parser(line)
+
+            if par.is_commentary():
+                continue
+
+            if par.is_end_loop():
+                end_loop = num_line
+                break
+
+        if end_loop is None:
+            raise SyntaxException(f'Not found end loop!')
+        else:
+            for i in range(start_num, end_num + 1):
+                set_var(name_var, Int(str(i)))
+                _interpreter = Interpreter(self.path, start_line, end_loop, is_loop=True)
+                _interpreter.run(False)
+
+            delete_var(name_var)
+        return end_loop
+
+    def run(self, check_border: bool = True):
         for num_line, line in enumerate(self.file):
+            num_line += 1
 
             if num_line < self.jump_to_num_line:
                 continue
@@ -21,6 +72,9 @@ class Interpreter:
             if self.end_line is not ...:
                 if num_line > self.end_line:
                     return
+
+            if self.is_border(num_line) and check_border:
+                continue
 
             try:
                 if line.isspace():
@@ -63,43 +117,36 @@ class Interpreter:
                     start, stop = par.count_repeat_in_loop()
                     var_in_loop = par.get_var_in_loop()
 
-                    end_loop = None
-
-                    for _num_line, _line in enumerate(self.file):
-                        _par = Parser(_line)
-
-                        if par.is_commentary():
-                            continue
-
-                        if _par.is_end_loop():
-                            end_loop = _num_line + num_line
-                            break
-
-                    if end_loop is None:
-                        raise SyntaxException(f'Not found end loop!')
-                    else:
-                        for i in range(start, stop+1):
-                            set_var(var_in_loop, Int(str(i)))
-                            _interpreter = Interpreter(self.path, num_line, end_loop, is_loop=True)
-                            _interpreter.run()
-
+                    self.jump_to_num_line = self.loop_worker(num_line, start, stop, var_in_loop) + 2
                 elif par.is_print():
                     print(*par.get_data_from_print())
-                else:
-                    if not self.is_loop:
-                        raise SyntaxException(f'Invalid syntax: {line=}')
+                elif par.is_call_func():
+                    print_debug(num_line, line)
+                    print_debug('CALL_FUNCTION', line)
+                    print_debug(get_table_functions())
 
+                    func = get_func(Function(line).get_name_call_func())
+
+                    _interpreter = Interpreter(self.path, func[0], func[1])
+                    _interpreter.run(check_border=False)
+                elif par.is_func():
+                    continue
+                else:
+                    if not self.is_loop and line.replace('\n', '') not in ALL_OPERATORS:
+                        raise SyntaxException(f'Invalid syntax: {line=}')
             except MainException as e:
                 print(f'{num_line=}\n\t{e}')
+                if DEBUG:
+                    raise
                 break
 
         print_debug(get_vars())
 
 
 if __name__ == '__main__':
-    commands = input('>>>').split(' ')
+    # commands = input('>>>').split(' ')
 
-    TEST = '/home/berkyt/PycharmProjects/MyScriptLanguage/test.txt'
+    TEST = '/home/berkyt/PycharmProjects/MyScriptLanguage/test3.txt'
 
-    interpreter = Interpreter(commands[0])
+    interpreter = Interpreter(TEST)
     interpreter.run()

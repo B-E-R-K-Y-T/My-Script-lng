@@ -1,0 +1,29 @@
+func name_func()
+    print "ITS FUNC inner!";
+    for i=(1,22) do
+        print "func_loop_i", loop_i;
+    end_loop
+    print "End func";
+end_func
+
+name_func();
+
+for i=(1,2) do
+    print "loop_i", loop_i;
+end_loop
+
+
+func hello()
+    print "Hello im function 2!";
+end_func
+
+
+
+hello();
+
+name_func();
+
+
+print "END_PROGRAM";
+
+

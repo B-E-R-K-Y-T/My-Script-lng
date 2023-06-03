@@ -1,3 +1,5 @@
+# /home/berkyt/PycharmProjects/MyScriptLanguage/test2.txt
+
 var x = 1;
 var y = 1;
 
@@ -8,6 +10,25 @@ var z = x + y;
 
 print z;
 
+print "TEST";
 for i=(-10,10) do
     print "loop_i", loop_i;
 end_loop
+
+print "ITS FUNC!";
+
+
+
+func name_func()
+    print "ITS FUNC inner!";
+    for i=(1,2) do
+        print "func_loop_i", loop_i;
+    end_loop
+    print "End func";
+end_func
+
+
+name_func();
+
+print "END_PROGRAM";
+

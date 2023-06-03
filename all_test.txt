@@ -15,3 +15,11 @@ print_x();
 for i=(1,5) do
     print loop_i, x;
 end_loop
+
+func test_2()
+    for i=(1,5) do
+        print_x();
+    end_loop
+end_func
+
+test_2();

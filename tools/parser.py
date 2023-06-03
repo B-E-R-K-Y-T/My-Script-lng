@@ -189,7 +189,6 @@ class Parser:
 
                 res.append(get_var(r).get_value())
             else:
-
                 idx_l = r.find('"')
                 idx_r = r.rfind('"')
 

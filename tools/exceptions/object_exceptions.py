@@ -2,8 +2,10 @@ from tools.exceptions.main_exception import MainException
 
 
 class ObjectException(MainException):
-    pass
+    def __init__(self, *args):
+        super().__init__(*args, default='Object error!')
 
 
 class TypeException(MainException):
-    pass
+    def __init__(self, *args):
+        super().__init__(*args, default='Type error!')

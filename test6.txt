@@ -1,0 +1,22 @@
+func test()
+    print "Hello!";
+end_func
+
+
+func test_arg(x, y, z)
+    for _=(0,2) do
+        print func_x, func_y, func_z;
+    end_loop
+
+    print "END FUNC";
+end_func
+
+
+for i=(1,5) do
+    test();
+    print loop_i;
+end_loop
+
+
+test_arg(1, 2, "Hello");
+

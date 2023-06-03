@@ -128,6 +128,14 @@ class Function:
         args = self.line_var[idx_start+1:idx_end].split(',')
         args = [arg.replace(' ', '') if arg.replace(' ', '').isdigit() else arg for arg in args]
 
+        for index, arg in enumerate(args):
+            if '"' in arg:
+                if arg.count('"') == 2:
+                    _idx_start = arg.find('"')
+                    _idx_end = arg.rfind('"')
+
+                    args[index] = arg[_idx_start:_idx_end+1]
+
         if len(args) == 1 and not args[0]:
             return []
 

@@ -1,3 +1,5 @@
+import sys
+
 from data.operators import ALL_OPERATORS
 from tools.debug import print_debug, DEBUG
 from tools.parser import *
@@ -234,7 +236,7 @@ class Interpreter:
 
                 if res == StateCatch.FAILED:
                     print(f'{num_line=}\n\t{e}')
-                    break
+                    sys.exit()
 
                 continue
 
@@ -244,7 +246,7 @@ class Interpreter:
 if __name__ == '__main__':
     # commands = input('>>>').split(' ')
 
-    TEST = f'/home/berkyt/PycharmProjects/MyScriptLanguage/test5.txt'
+    TEST = f'/home/berkyt/PycharmProjects/MyScriptLanguage/test6.txt'
 
     interpreter = Interpreter(TEST)
     interpreter.run()

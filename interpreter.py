@@ -2,7 +2,10 @@ import sys
 
 from data.operators import ALL_OPERATORS
 from tools.debug import print_debug, DEBUG
-from tools.parser import *
+from tools.exceptions.object_exceptions import FunctionException, TypeException
+from tools.exceptions.syntax_exceptions import SyntaxException
+from tools.parser import Parser, set_try_catch, get_try_catchs, Function, set_func, get_func, get_table_functions, \
+    set_var, delete_var, Var, CONVERT_TABLE, is_var_exists, get_var, get_vars
 from tools.types import Int, Line
 from tools.exceptions.main_exception import MainException
 from tools.try_catch import Catch, StateCatch
@@ -200,7 +203,7 @@ class Interpreter:
                 elif par.is_print():
                     print(*par.get_data_from_print())
                 elif par.is_call_func():
-                    func_name = par.get_name_func()
+                    func_name = par.get_name_call_func()
 
                     print_debug(num_line, line)
                     print_debug('CALL_FUNCTION', line)
@@ -230,7 +233,9 @@ class Interpreter:
                     _interpreter = Interpreter(self.path, func['borders'][0], func['borders'][1])
                     _interpreter.run(check_border=False)
                 elif par.is_func():
-                    continue
+                    func_name = par.get_name_defined_func()
+                    if find_func(func_name):
+                        raise FunctionException(f'This function: "{func_name}" is standard! It cannot be overridden!')
                 elif par.is_catch():
                     continue
                 else:

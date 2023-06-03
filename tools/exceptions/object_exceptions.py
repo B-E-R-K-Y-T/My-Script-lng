@@ -9,3 +9,9 @@ class ObjectException(MainException):
 class TypeException(MainException):
     def __init__(self, *args):
         super().__init__(*args, default='Type error!')
+
+
+class FunctionException(MainException):
+    def __init__(self, *args):
+        super().__init__(*args, default='Function error!')
+

@@ -1,7 +1,7 @@
 import re
 
 from data.operators import EQUAL
-from tools.exceptions.object_exceptions import ObjectException, TypeException
+from tools.exceptions.object_exceptions import ObjectException, TypeException, FunctionException
 from tools.exceptions.syntax_exceptions import SyntaxException
 from tools.types import Int, Line
 
@@ -12,6 +12,13 @@ CONVERT_TABLE = {
     Int.__name__: Int,
     Line.__name__: Line,
 }
+
+
+def replace_dict(line: str, dict_words: dict) -> str:
+    for old_word, new_word in dict_words.items():
+        line = line.replace(str(old_word), str(new_word))
+
+    return line
 
 
 def get_vars():
@@ -49,7 +56,7 @@ def set_try_catch(key, value):
 
 def get_func(key):
     if not is_func_exists(key):
-        raise ObjectException(f'This function "{key}" not exist!')
+        raise FunctionException(f'This function: "{key}" not exist!')
     else:
         return _tree_functions[key]
 
@@ -220,11 +227,15 @@ class Parser:
             return True
         return False
 
-    def get_name_func(self):
+    def get_name_call_func(self):
         func = self.line.replace(' ', '')
         idx_end = func.rfind('(')
 
         return func[:idx_end]
+
+    def get_name_defined_func(self):
+        name_func = replace_dict(re.findall(pattern=r'[ ]*func[ ]+[\w_]+', string=self.line)[0], {'func': '', ' ': ''})
+        return name_func
 
     def is_end_func(self):
         if re.findall(pattern=r'[ ]*end_func', string=self.line):

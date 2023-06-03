@@ -4,6 +4,7 @@ from msl_standard_library.operation_system import OS_command
 from tools.types import Int, Line
 from tools.parser import Var
 
+
 _tree_standard_functions = {
     Add.__name__: {'func': Add, 'args': ['a', 'b']},
     Sum.__name__: {'func': Sum, 'args': ['a', 'b', 'c']},

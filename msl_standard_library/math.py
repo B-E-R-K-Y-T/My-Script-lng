@@ -1,5 +1,5 @@
-def Sum(a, b, c):
-    print(sum([a, b, c]))
+def Sum(*args):
+    print(sum(args))
 
 
 def Add(a, b):

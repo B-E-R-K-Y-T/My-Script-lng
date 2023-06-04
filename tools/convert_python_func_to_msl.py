@@ -7,7 +7,7 @@ from tools.parser import Var
 
 _tree_standard_functions = {
     Add.__name__: {'func': Add, 'args': ['a', 'b']},
-    Sum.__name__: {'func': Sum, 'args': ['a', 'b', 'c']},
+    Sum.__name__: {'func': Sum, 'args': [-1]},
     Len.__name__: {'func': Len, 'args': ['seq']},
     Max.__name__: {'func': Max, 'args': [-1]},
     Min.__name__: {'func': Min, 'args': [-1]},

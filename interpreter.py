@@ -1,4 +1,3 @@
-import collections
 import sys
 
 from data.operators import ALL_OPERATORS

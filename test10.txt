@@ -78,3 +78,4 @@ Add(1, 2);
 OS_command("echo 123");
 Len("aaaqweqe");
 Print(1,2,3);
+Sum(1,2,3,4);

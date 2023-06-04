@@ -291,6 +291,8 @@ class Interpreter:
                         raise FunctionException(f'This function: "{func_name}" is standard! It cannot be overridden!')
                 elif par.is_catch():
                     continue
+                elif par.is_end_try():
+                    continue
                 else:
                     if not self.is_loop and line.replace('\n', '') not in ALL_OPERATORS:
                         raise SyntaxException(f'Invalid syntax: {line=}')

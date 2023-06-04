@@ -17,18 +17,19 @@ class Catch:
             raise self.obj_exc
 
         exceptions = get_try_catchs()
+        next_line = 1
 
         for exc_key in exceptions:
             for idx, exc in enumerate(exceptions[exc_key]['catchs']):
                 if exc_name in exc.values():
-                    start = exc['num_line'] + 1
+                    start = exc['num_line'] + next_line
 
                     if idx+1 < len(exceptions[exc_key]['catchs']):
-                        end = exceptions[exc_key]['catchs'][idx+1]['num_line'] + 1
+                        end = exceptions[exc_key]['catchs'][idx+1]['num_line'] + next_line
                     else:
-                        end = exceptions[exc_key]['end'] + 1
+                        end = exceptions[exc_key]['end'] + next_line
 
-                    jump = exceptions[exc_key]['end'] + 1
+                    jump = exceptions[exc_key]['end'] + next_line
 
                     return start, end, jump
 

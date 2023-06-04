@@ -19,3 +19,5 @@ test(12);
 
 Min(1, 2, 3, -1);
 
+# Создает папку
+OS_command("mkdir TEST");

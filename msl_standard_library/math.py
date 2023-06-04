@@ -12,3 +12,7 @@ def Len(seq):
 
 def Max(*args):
     print(max(args))
+
+
+def Min(*args):
+    print(min(args))

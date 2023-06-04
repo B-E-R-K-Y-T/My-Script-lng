@@ -161,6 +161,7 @@ class Interpreter:
 
         return tokens
 
+    # TODO: Доделать!
     def get_expressions(self):
         expressions = []
 
@@ -192,7 +193,7 @@ class Interpreter:
                 if par.is_commentary():
                     continue
 
-                print_debug(line)
+                print_debug(num_line, line)
 
                 if par.is_variable():
                     var = Var(line)
@@ -293,7 +294,7 @@ class Interpreter:
 if __name__ == '__main__':
     # commands = input('Enter path to script >>>').split(' ')
 
-    TEST = f'/home/berkyt/PycharmProjects/MyScriptLanguage/test6.txt'
+    TEST = f'/home/berkyt/PycharmProjects/MyScriptLanguage/test9.txt'
 
     interpreter = Interpreter(TEST)
     interpreter.run()

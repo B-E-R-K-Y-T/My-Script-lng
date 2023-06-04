@@ -1,4 +1,4 @@
-from msl_standard_library.math import Sum, Add, Len, Max
+from msl_standard_library.math import Sum, Add, Len, Max, Min
 from msl_standard_library.utils import Print
 from msl_standard_library.operation_system import OS_command
 from tools.types import Int, Line
@@ -10,6 +10,7 @@ _tree_standard_functions = {
     Sum.__name__: {'func': Sum, 'args': ['a', 'b', 'c']},
     Len.__name__: {'func': Len, 'args': ['seq']},
     Max.__name__: {'func': Max, 'args': [-1]},
+    Min.__name__: {'func': Min, 'args': [-1]},
     OS_command.__name__: {'func': OS_command, 'args': ['command']},
     Print.__name__: {'func': Print, 'args': [-1]},
 }

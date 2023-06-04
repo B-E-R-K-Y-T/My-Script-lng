@@ -1,4 +1,17 @@
 
+var arr = {1,2,3,4};
+         # 0 1 2 3
+try do
+    print arr[0];
+    print arr[1];
+    print arr[2];
+    print arr[3];
+    print arr[4];
+catch IndexException do
+    print "IndexException!!!";
+end_try
+
+
 func test(x, y, z)
     for i=(1,5) do
         try do

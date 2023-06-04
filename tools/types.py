@@ -1,7 +1,7 @@
 import re
 
 from abc import ABC, abstractmethod
-from tools.exceptions.object_exceptions import TypeException
+from tools.exceptions.object_exceptions import TypeException, IndexException
 
 
 class Type(ABC):
@@ -67,7 +67,10 @@ class Array(Type):
         return self.convert_str_to_array(self.value)
 
     def __getitem__(self, item):
-        return self.get_value()[item]
+        try:
+            return self.get_value()[item]
+        except IndexError as e:
+            raise IndexException(e)
 
 
 class Line(Type):

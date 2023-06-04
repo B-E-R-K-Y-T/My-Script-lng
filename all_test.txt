@@ -1,3 +1,15 @@
+var arr = {1,2,3,4};
+         # 0 1 2 3
+try do
+    print arr[0];
+    print arr[1];
+    print arr[2];
+    print arr[3];
+    print arr[4];
+catch IndexException do
+    print "IndexException!!!";
+end_try
+
 var x = 1;
 var y = 1000;
 
@@ -23,3 +35,36 @@ func test_2()
 end_func
 
 test_2();
+
+func test(x, y, z)
+    for i=(1,5) do
+        try do
+            var x = 2;
+        catch ObjectException do
+            try do
+                #Тут намеренная ошибка синтаксиса
+                print "ObjectException 1", x
+            catch SyntaxException do
+                print "SyntaxException 2";
+            end_try
+        end_try
+        print "Hello!", x, loop_i;
+
+        print "x: ", func_x, "y: ", func_y, "z: ", func_z;
+    end_loop
+
+    print "END_LOOP";
+
+    try do
+        print loop_i;
+    catch ObjectException do
+        print "ObjectException 3";
+    end_try
+
+    print "END_TRY1";
+
+    print "x: ", func_x, "y: ", func_y, "z: ", func_z, "END";
+    print "END FUNC";
+end_func
+
+test(1, 2, 3);

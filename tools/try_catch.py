@@ -39,11 +39,10 @@ class Catch:
 
     @staticmethod
     @log
-    def get_handlers(tree_exc: dict) -> list:
+    def get_handlers(tree_exc: dict, exc_key: str) -> list:
         res = []
 
-        for exc_key in tree_exc:
-            for exc in tree_exc[exc_key]['catchs']:
-                res.append(exc['obj_exc'])
+        for exc in tree_exc[exc_key]['catchs']:
+            res.append(exc['obj_exc'])
 
         return res

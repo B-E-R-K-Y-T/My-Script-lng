@@ -1,0 +1,19 @@
+
+try do
+    var x = 2;
+catch ObjectException do
+    try do
+        print "ObjectException 4", x
+    catch SyntaxException do
+        print "SyntaxException 5";
+    end_try
+end_try
+
+
+print "END_TRY1";
+
+try do
+    print loop_i;
+catch ObjectException do
+    print "ObjectException 6";
+end_try

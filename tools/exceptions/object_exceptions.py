@@ -15,3 +15,8 @@ class FunctionException(MainException):
     def __init__(self, *args):
         super().__init__(*args, default='Function error!')
 
+
+class IndexException(MainException):
+    def __init__(self, *args):
+        super().__init__(*args, default='Index error!')
+

@@ -1,3 +1,4 @@
+import collections
 import sys
 
 from data.operators import ALL_OPERATORS
@@ -6,7 +7,7 @@ from tools.exceptions.object_exceptions import FunctionException, TypeException,
 from tools.exceptions.syntax_exceptions import SyntaxException
 from tools.parser import (Parser, set_try_catch, get_try_catchs, Function, set_func, get_func, get_table_functions,
                           set_var, delete_var, Var, CONVERT_TABLE, is_var_exists, get_var, get_vars,
-                          get_name_and_index_indexing_array)
+                          get_name_and_index_indexing_array, get_num_try_by_key)
 from tools.token_parser import TokenParser, TokenReader
 from tools.types import Int, Line
 from tools.exceptions.main_exception import MainException
@@ -31,19 +32,28 @@ class Interpreter:
 
         if init_calls:
             self.save_funcs()
-            self.save_try_catch()
 
-    @log
-    def save_try_catch(self):
-        try_num = 0
+    def save_try_catch(self, jump_line: int = 1, def_try_num: int = 0, flag_is_try: bool = False):
+        try_num = def_try_num
+        is_try = flag_is_try
 
         for num_line, line in enumerate(open(self.path)):
+            if num_line < jump_line:
+                continue
+
             par = Parser(line)
 
             if par.is_commentary():
                 continue
 
             if par.is_try():
+                if is_try:
+                    jump_line = self.save_try_catch(num_line, def_try_num=num_line, flag_is_try=False)
+                    is_try = False
+                    continue
+                else:
+                    is_try = True
+
                 try_num = num_line
                 try_obj = {f'try_{num_line}': {'catchs': [{'num_line': ..., 'obj_exc': ...}]}}
                 set_try_catch(f'try_{num_line}', try_obj[f'try_{num_line}'])
@@ -53,10 +63,11 @@ class Interpreter:
             elif par.is_end_try():
                 try_obj = get_try_catchs()
                 try_obj[f'try_{try_num}']['end'] = num_line
-                break
-            print_debug(get_try_catchs())
 
-    @log
+                if is_try:
+                    print_debug(get_try_catchs())
+                    return num_line + 1
+
     def save_funcs(self):
         name_func = ''
 
@@ -76,7 +87,6 @@ class Interpreter:
                 set_func(name_func, (func['borders'][0], num_line), func['args'])
 
     @staticmethod
-    @log
     def is_border(num_line: int) -> bool:
         for attrs in get_table_functions().values():
             borders = attrs['borders']
@@ -86,7 +96,6 @@ class Interpreter:
 
         return False
 
-    @log
     def loop_worker(self, start_line: int, start_num: int, end_num: int, name_var: str) -> int:
         end_loop = None
 
@@ -116,7 +125,6 @@ class Interpreter:
         return end_loop
 
     @staticmethod
-    @log
     def save_args_for_call_func(args: list, name_args: list):
         for arg, name_arg in zip(args, name_args):
             var = Var(arg)
@@ -126,37 +134,49 @@ class Interpreter:
                 set_var(name_arg, CONVERT_TABLE[var.get_type(arg).__name__](arg))
 
     @staticmethod
-    @log
     def count_send_args_is_valid(to_args: list, from_args: list) -> bool:
         if len(to_args) == len(from_args):
             return True
         return False
 
-    @log
     def handler_exception(self, num_line_exc: int, exc: MainException) -> StateCatch:
         exceptions = get_try_catchs()
         for exc_key in exceptions:
-            start, end = int(exc_key[4:]), int(exceptions[exc_key]['catchs'][1]['num_line'])
+            start = int(exc_key[4:])
+            end = int(exceptions[exc_key]['catchs'][1]['num_line'])
+            jump = int(exceptions[exc_key]['end'])
+
+            print_debug('DEBUG: ', start, end, jump)
 
             if start <= num_line_exc <= end:
+                print_debug('DEBUG: ', exc_key)
+                print_debug('DEBUG: ', f'{num_line_exc=}', f'{start=}, {end=}, {jump=}', start <= num_line_exc <= end)
                 e = Catch(exc)
                 exc_name = str(exc.__class__.__name__)
 
-                if exc_name not in e.get_handlers(exceptions):
-                    return StateCatch.FAILED
+                print_debug(exc_name not in e.get_handlers(exceptions, exc_key))
 
-                start, end, jump = e.handler_error(e.get_handlers(exceptions))
+                if exc_name not in e.get_handlers(exceptions, exc_key):
+                    for _e in exceptions:
+                        if get_num_try_by_key(exc_key) > get_num_try_by_key(_e):
+                            continue
 
-                _interpreter = Interpreter(self.path, start, end, init_calls=False)
-                _interpreter.run(check_border=False)
+                        if exceptions[_e]['end'] < exceptions[exc_key]['end']:
+                            if exc_name not in e.get_handlers(exceptions, _e):
+                                return StateCatch.FAILED
+                            else:
+                                end = int(exceptions[_e]['catchs'][1]['num_line'])
+                                jump = int(exceptions[exc_key]['end'])
 
-                self.jump_to_num_line = jump
+                                _interpreter = Interpreter(self.path, end + 1, end + 2, init_calls=False)
+                                _interpreter.run(check_border=False)
+
+                                self.jump_to_num_line = jump + 1
 
                 return StateCatch.PROCESSED
 
         return StateCatch.FAILED
 
-    @log
     def get_tokens(self):
         tokens = []
 
@@ -178,7 +198,6 @@ class Interpreter:
 
         print(tr.get_all_values_arrays())
 
-    @log
     def run(self, check_border: bool = True):
         for num_line, line in enumerate(self.file):
             vars_in_line = []
@@ -186,6 +205,8 @@ class Interpreter:
 
             if num_line < self.jump_to_num_line:
                 continue
+
+            # print(f'{"".join(s for s in str(self) if s.isdigit())}, {num_line=}')
 
             if self.end_line is not ...:
                 if num_line > self.end_line:
@@ -208,6 +229,8 @@ class Interpreter:
                 if par.is_variable():
                     var = Var(line)
                     var.save_var(var.get_key(), var.get_value())
+                elif par.is_try():
+                    self.save_try_catch(num_line - 1, def_try_num=num_line - 1, flag_is_try=False)
                 # TODO: Доделать
                 elif par.is_indexing():
                     name, index = get_name_and_index_indexing_array(line)

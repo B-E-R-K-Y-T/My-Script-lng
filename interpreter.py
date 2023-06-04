@@ -1,7 +1,7 @@
 import sys
 
 from data.operators import ALL_OPERATORS
-from tools.debug import print_debug, DEBUG
+from tools.debug import print_debug, DEBUG, log
 from tools.exceptions.object_exceptions import FunctionException, TypeException, ObjectException
 from tools.exceptions.syntax_exceptions import SyntaxException
 from tools.parser import (Parser, set_try_catch, get_try_catchs, Function, set_func, get_func, get_table_functions,
@@ -33,6 +33,7 @@ class Interpreter:
             self.save_funcs()
             self.save_try_catch()
 
+    @log
     def save_try_catch(self):
         try_num = 0
 
@@ -55,6 +56,7 @@ class Interpreter:
                 break
             print_debug(get_try_catchs())
 
+    @log
     def save_funcs(self):
         name_func = ''
 
@@ -74,6 +76,7 @@ class Interpreter:
                 set_func(name_func, (func['borders'][0], num_line), func['args'])
 
     @staticmethod
+    @log
     def is_border(num_line: int) -> bool:
         for attrs in get_table_functions().values():
             borders = attrs['borders']
@@ -83,6 +86,7 @@ class Interpreter:
 
         return False
 
+    @log
     def loop_worker(self, start_line: int, start_num: int, end_num: int, name_var: str) -> int:
         end_loop = None
 
@@ -112,6 +116,7 @@ class Interpreter:
         return end_loop
 
     @staticmethod
+    @log
     def save_args_for_call_func(args: list, name_args: list):
         for arg, name_arg in zip(args, name_args):
             var = Var(arg)
@@ -121,11 +126,13 @@ class Interpreter:
                 set_var(name_arg, CONVERT_TABLE[var.get_type(arg).__name__](arg))
 
     @staticmethod
+    @log
     def count_send_args_is_valid(to_args: list, from_args: list) -> bool:
         if len(to_args) == len(from_args):
             return True
         return False
 
+    @log
     def handler_exception(self, num_line_exc: int, exc: MainException) -> StateCatch:
         exceptions = get_try_catchs()
         for exc_key in exceptions:
@@ -149,6 +156,7 @@ class Interpreter:
 
         return StateCatch.FAILED
 
+    @log
     def get_tokens(self):
         tokens = []
 
@@ -162,6 +170,7 @@ class Interpreter:
         return tokens
 
     # TODO: Доделать!
+    @log
     def get_expressions(self):
         expressions = []
 
@@ -169,6 +178,7 @@ class Interpreter:
 
         print(tr.get_all_values_arrays())
 
+    @log
     def run(self, check_border: bool = True):
         for num_line, line in enumerate(self.file):
             vars_in_line = []
@@ -242,7 +252,7 @@ class Interpreter:
                     func_name = par.get_name_call_func()
 
                     print_debug(num_line, line)
-                    print_debug('CALL_FUNCTION', line)
+                    print_debug('RUN_TIME:\n\tCALL_FUNCTION\n\t\t', line)
                     print_debug(get_table_functions())
 
                     func_args = Function(line).get_args()
@@ -269,8 +279,12 @@ class Interpreter:
                     _interpreter = Interpreter(self.path, func['borders'][0], func['borders'][1])
                     _interpreter.run(check_border=False)
 
+                    print_debug(get_vars())
+
                     for arg in func['args'].keys():
                         delete_var(arg)
+
+                    print_debug(get_vars())
                 elif par.is_func():
                     func_name = par.get_name_defined_func()
                     if find_func(func_name):
@@ -293,12 +307,14 @@ class Interpreter:
                 continue
 
         print_debug(get_vars())
+        print_debug(get_table_functions())
+        print_debug(get_try_catchs())
 
 
 if __name__ == '__main__':
     # commands = input('Enter path to script >>>').split(' ')
 
-    TEST = f'/home/berkyt/PycharmProjects/MyScriptLanguage/test9.txt'
+    TEST = f'/home/berkyt/PycharmProjects/MyScriptLanguage/test10.txt'
 
     interpreter = Interpreter(TEST)
     interpreter.run()

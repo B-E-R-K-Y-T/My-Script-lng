@@ -2,7 +2,7 @@ var x = 1;
 print x;
 
 try do
-    var x = 2;
+    # var x = 2;
 catch ObjectException do
     for i=(1,4) do
         print "ObjectException 1", "i: ", loop_i;

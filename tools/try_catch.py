@@ -1,3 +1,4 @@
+from tools.debug import log
 from tools.parser import get_try_catchs
 
 
@@ -10,6 +11,7 @@ class Catch:
     def __init__(self, obj_exc: Exception):
         self.obj_exc = obj_exc
 
+    @log
     def handler_error(self, handlers: list) -> tuple:
         exc_name = str(self.obj_exc.__class__.__name__)
 
@@ -36,6 +38,7 @@ class Catch:
         return None, None, None
 
     @staticmethod
+    @log
     def get_handlers(tree_exc: dict) -> list:
         res = []
 

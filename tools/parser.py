@@ -1,6 +1,7 @@
 import re
 
 from data.operators import EQUAL
+from tools.debug import print_debug, log
 from tools.exceptions.object_exceptions import ObjectException, TypeException, FunctionException
 from tools.types import Int, Line, Array, Type
 
@@ -13,6 +14,7 @@ CONVERT_TABLE = {
 }
 
 
+@log
 def replace_dict(line: str, dict_words: dict) -> str:
     for old_word, new_word in dict_words.items():
         line = line.replace(str(old_word), str(new_word))
@@ -20,10 +22,12 @@ def replace_dict(line: str, dict_words: dict) -> str:
     return line
 
 
+@log
 def get_vars():
     return _tree_variables
 
 
+@log
 def get_name_and_index_indexing_array(value: str) -> tuple[str, int]:
     arr = re.findall(pattern=r'[ ]*[\w\d]+\[[\d]+\]', string=value)
 
@@ -32,6 +36,7 @@ def get_name_and_index_indexing_array(value: str) -> tuple[str, int]:
     return name, int(index)
 
 
+@log
 def get_var(key: str):
     if not is_var_exists(key):
         raise ObjectException(f'This variable "{key}" not exist!')
@@ -39,28 +44,34 @@ def get_var(key: str):
         return _tree_variables[key]
 
 
+@log
 def set_var(key: str, value: Type):
     _tree_variables[key] = value
 
 
+@log
 def delete_var(key: str):
     del _tree_variables[key]
 
 
+@log
 def is_var_exists(key: str) -> bool:
     var = _tree_variables.get(key)
 
     return False if var is None else True
 
 
+@log
 def get_try_catchs() -> dict:
     return _tree_try_catch
 
 
+@log
 def set_try_catch(key: str, value):
     _tree_try_catch[key] = value
 
 
+@log
 def get_func(key: str) -> dict:
     if not is_func_exists(key):
         raise FunctionException(f'This function: "{key}" not exist!')
@@ -68,18 +79,22 @@ def get_func(key: str) -> dict:
         return _tree_functions[key]
 
 
+@log
 def get_table_functions() -> dict:
     return _tree_functions
 
 
+@log
 def set_func(key, borders: tuple[int, int], args: dict = ...):
     _tree_functions[key] = {'borders': borders, 'args': args}
 
 
+@log
 def delete_func(key: str):
     del _tree_functions[key]
 
 
+@log
 def is_func_exists(key: str) -> bool:
     func = _tree_functions.get(key)
 

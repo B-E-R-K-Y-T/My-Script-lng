@@ -227,6 +227,32 @@ Len("aaaqweqe");
 Print(1,2,3);
 Sum(1,2,3,4);
 
+func test_wrapper_loops()
+    for i=(1,4) do
+        for j=(1,2) do
+            for z=(1,23) do
+                for k=(1,2) do
+                    print loop_i, loop_j, loop_z, loop_k;
+
+                    for tim=(-1,2) do
+                        print "Tim: ", loop_tim;
+                    end_loop
+
+                    try do
+                        :LSDKFH;lkh
+                    catch SyntaxException do
+                        print "SyntaxException 1";
+                    end_try
+                end_loop
+            end_loop
+        end_loop
+    end_loop
+end_func
+
+
+test_wrapper_loops();
+
+
 ```
 
 Вывод: 

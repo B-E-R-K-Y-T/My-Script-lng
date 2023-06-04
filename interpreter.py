@@ -206,7 +206,7 @@ class Interpreter:
             if num_line < self.jump_to_num_line:
                 continue
 
-            # print(f'{"".join(s for s in str(self) if s.isdigit())}, {num_line=}')
+            print_debug(f'Interpreter ID: {"".join(s for s in str(self) if s.isdigit())}, {num_line=}')
 
             if self.end_line is not ...:
                 if num_line > self.end_line:

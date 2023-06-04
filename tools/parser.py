@@ -2,8 +2,7 @@ import re
 
 from data.operators import EQUAL
 from tools.exceptions.object_exceptions import ObjectException, TypeException, FunctionException
-from tools.exceptions.syntax_exceptions import SyntaxException
-from tools.types import Int, Line
+from tools.types import Int, Line, Array, Type
 
 _tree_variables = {}
 _tree_functions = {}
@@ -25,43 +24,51 @@ def get_vars():
     return _tree_variables
 
 
-def get_var(key):
+def get_name_and_index_indexing_array(value: str) -> tuple[str, int]:
+    arr = re.findall(pattern=r'[ ]*[\w\d]+\[[\d]+\]', string=value)
+
+    name, index = re.findall(pattern=r'[\w\d]+', string=arr[0])
+
+    return name, int(index)
+
+
+def get_var(key: str):
     if not is_var_exists(key):
         raise ObjectException(f'This variable "{key}" not exist!')
     else:
         return _tree_variables[key]
 
 
-def set_var(key, value):
+def set_var(key: str, value: Type):
     _tree_variables[key] = value
 
 
-def delete_var(key):
+def delete_var(key: str):
     del _tree_variables[key]
 
 
-def is_var_exists(key):
+def is_var_exists(key: str) -> bool:
     var = _tree_variables.get(key)
 
     return False if var is None else True
 
 
-def get_try_catchs():
+def get_try_catchs() -> dict:
     return _tree_try_catch
 
 
-def set_try_catch(key, value):
+def set_try_catch(key: str, value):
     _tree_try_catch[key] = value
 
 
-def get_func(key):
+def get_func(key: str) -> dict:
     if not is_func_exists(key):
         raise FunctionException(f'This function: "{key}" not exist!')
     else:
         return _tree_functions[key]
 
 
-def get_table_functions():
+def get_table_functions() -> dict:
     return _tree_functions
 
 
@@ -69,11 +76,11 @@ def set_func(key, borders: tuple[int, int], args: dict = ...):
     _tree_functions[key] = {'borders': borders, 'args': args}
 
 
-def delete_func(key):
+def delete_func(key: str):
     del _tree_functions[key]
 
 
-def is_func_exists(key):
+def is_func_exists(key: str) -> bool:
     func = _tree_functions.get(key)
 
     return False if func is None else True
@@ -87,7 +94,7 @@ class Var:
     def split_str_to_key_value(line_var: str):
         line_var = line_var.replace(' ', '')
         index_var = line_var.find(EQUAL) + 1
-        key, value = line_var[3:index_var-1], line_var[index_var:-2]
+        key, value = line_var[3:index_var - 1], line_var[index_var:-2]
 
         return key, value
 
@@ -99,10 +106,10 @@ class Var:
 
     @staticmethod
     def get_type(value):
-        if Int.is_int(value):
-            return Int
-        elif Line.is_line(value):
-            return Line
+        for t in [Int, Line, Array]:
+            if t.check_type(value):
+                return t
+
         raise TypeException(f'Invalid type! {value=}')
 
     def save_var(self, key, value):
@@ -113,6 +120,8 @@ class Var:
                 _tree_variables[key] = Int(value)
             elif self.get_type(value) == Line:
                 _tree_variables[key] = Line(value)
+            elif self.get_type(value) == Array:
+                _tree_variables[key] = Array(value)
             else:
                 raise TypeException(f'Error type!')
 
@@ -136,7 +145,7 @@ class Function:
         idx_start = self.line_var.find('(')
         idx_end = self.line_var.find(')')
 
-        args = self.line_var[idx_start+1:idx_end].split(',')
+        args = self.line_var[idx_start + 1:idx_end].split(',')
         args = [arg.replace(' ', '') if arg.replace(' ', '').isdigit() else arg for arg in args]
 
         for index, arg in enumerate(args):
@@ -145,18 +154,18 @@ class Function:
                     _idx_start = arg.find('"')
                     _idx_end = arg.rfind('"')
 
-                    args[index] = arg[_idx_start:_idx_end+1]
+                    args[index] = arg[_idx_start:_idx_end + 1]
 
         if len(args) == 1 and not args[0]:
             return []
 
         return args
-    
+
     def get_name_args(self):
         idx_start = self.line_var.find('(')
         idx_end = self.line_var.find(')')
 
-        args = self.line_var[idx_start+1:idx_end].split(',')
+        args = self.line_var[idx_start + 1:idx_end].split(',')
         args = [arg.replace(' ', '') for arg in args]
 
         return args
@@ -185,7 +194,7 @@ class Parser:
         return False
 
     def is_variable(self) -> bool:
-        if re.findall(pattern=r'[ ]*var[ ]+\w+[ ]+=[ ]+[\w\d\"]+;', string=self.line):
+        if re.findall(pattern=r'[ ]*var[ ]+\w+[ ]+=[ ]+[\w\d\"{,}]+;', string=self.line):
             return True
         return False
 
@@ -252,6 +261,11 @@ class Parser:
             return True
         return False
 
+    def is_indexing(self) -> bool:
+        if re.findall(pattern=r'[ ]*[\w\d]+\[[\d]+\]', string=self.line):
+            return True
+        return False
+
     def get_data_from_print(self) -> list:
         args = self.line[:-1].split('print')
         args = [arg for arg in args if not arg.isspace() and arg][0].split(',')
@@ -272,7 +286,7 @@ class Parser:
                 idx_l = r.find('"')
                 idx_r = r.rfind('"')
 
-                r = r[idx_l+1:idx_r]
+                r = r[idx_l + 1:idx_r]
 
                 res.append(r)
 
@@ -300,3 +314,9 @@ if __name__ == '__main__':
     p = Parser('for     idf=(1,100)      do')
     print(*p.count_repeat_in_loop())
     print(p.get_var_in_loop())
+
+    test = 'var arr = {1,2,3};'
+
+    v = Var(test)
+    print(v.get_value())
+    print(v.get_key())

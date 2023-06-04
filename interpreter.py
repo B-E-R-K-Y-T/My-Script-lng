@@ -5,7 +5,9 @@ from tools.debug import print_debug, DEBUG
 from tools.exceptions.object_exceptions import FunctionException, TypeException, ObjectException
 from tools.exceptions.syntax_exceptions import SyntaxException
 from tools.parser import (Parser, set_try_catch, get_try_catchs, Function, set_func, get_func, get_table_functions,
-                          set_var, delete_var, Var, CONVERT_TABLE, is_var_exists, get_var, get_vars)
+                          set_var, delete_var, Var, CONVERT_TABLE, is_var_exists, get_var, get_vars,
+                          get_name_and_index_indexing_array)
+from tools.token_parser import TokenParser, TokenReader
 from tools.types import Int, Line
 from tools.exceptions.main_exception import MainException
 from tools.try_catch import Catch, StateCatch
@@ -25,6 +27,8 @@ class Interpreter:
         self.end_line = end_line
         self.is_loop = is_loop
         self.init_calls = init_calls
+        self.tokens = self.get_tokens()
+
         if init_calls:
             self.save_funcs()
             self.save_try_catch()
@@ -145,8 +149,28 @@ class Interpreter:
 
         return StateCatch.FAILED
 
+    def get_tokens(self):
+        tokens = []
+
+        for num_line, line in enumerate(open(self.path)):
+            if line.isspace():
+                continue
+
+            for token in line.split(' '):
+                tokens.append([token, line, num_line])
+
+        return tokens
+
+    def get_expressions(self):
+        expressions = []
+
+        tr = TokenReader(self.tokens)
+
+        print(tr.get_all_values_arrays())
+
     def run(self, check_border: bool = True):
         for num_line, line in enumerate(self.file):
+            vars_in_line = []
             num_line += 1
 
             if num_line < self.jump_to_num_line:
@@ -173,6 +197,12 @@ class Interpreter:
                 if par.is_variable():
                     var = Var(line)
                     var.save_var(var.get_key(), var.get_value())
+                elif par.is_indexing():
+                    name, index = get_name_and_index_indexing_array(line)
+
+                    var = get_var(name)[index]
+                    print(var)
+                    vars_in_line.append(var)
                 elif par.is_calculated_variable():
                     var = Var(line)
                     _par = Parser(var.get_value())
@@ -197,7 +227,7 @@ class Interpreter:
 
                     res = None
 
-                    if Int.is_int(a) and Int.is_int(b):
+                    if Int.check_type(a) and Int.check_type(b):
                         res = int(get_var(a)) + int(get_var(b))
                 elif par.is_start_loop() and not self.is_loop:
                     start, stop = par.count_repeat_in_loop()

@@ -133,6 +133,18 @@ SyntaxException 2
 Более сложный код:
 
 ```
+var arr = {1,2,3,4};
+         # 0 1 2 3
+try do
+    print arr[0];
+    print arr[1];
+    print arr[2];
+    print arr[3];
+    print arr[4];
+catch IndexException do
+    print "IndexException!!!";
+end_try
+
 
 func test(x, y, z)
     for i=(1,5) do
@@ -195,6 +207,10 @@ catch ObjectExcepti2on do
     print "ObjectException 7";
 end_try
 
+Add(1, 2);
+OS_command("echo 123");
+Len("aaaqweqe");
+Print(1,2,3);
 
 print "test 2";
 
@@ -203,10 +219,23 @@ test(1, 2, 3);
 for _=(1,20) do
     print "FINAL_FOR";
 end_loop
+
+
+Add(1, 2);
+OS_command("echo 123");
+Len("aaaqweqe");
+Print(1,2,3);
+Sum(1,2,3,4);
+
 ```
 
 Вывод: 
 ```
+1
+2
+3
+4
+IndexException!!!
 SyntaxException 2
 Hello! 2 1
 x:  1 y:  2 z:  3
@@ -231,6 +260,10 @@ test
 SyntaxException 5
 END_TRY2
 ObjectException 6
+3
+123
+8
+1 2 3
 test 2
 SyntaxException 2
 Hello! 2 1
@@ -272,6 +305,11 @@ FINAL_FOR
 FINAL_FOR
 FINAL_FOR
 FINAL_FOR
+3
+123
+8
+1 2 3
+10
 ```
 
 

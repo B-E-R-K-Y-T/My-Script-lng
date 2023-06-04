@@ -250,19 +250,19 @@ class Interpreter:
                     if find_func(func_name):
                         if not is_func_accepts_inf_args(find_func(func_name)['args']):
                             if not self.count_send_args_is_valid(func_args, list(find_func(func_name)['args'])):
-                                raise SyntaxException(f'{func_args}({len(func_args)}) arguments were passed, and '
-                                                      f'{list(find_func(func_name)["args"])}'
-                                                      f'({len(list(find_func(func_name)["args"]))})'
-                                                      f'were expected')
+                                raise FunctionException(f'{func_args}({len(func_args)}) arguments were passed, and '
+                                                        f'{list(find_func(func_name)["args"])}'
+                                                        f'({len(list(find_func(func_name)["args"]))})'
+                                                        f'were expected')
                         call_standard_func(func_name, *func_args)
                         continue
 
                     func = get_func(Function(line).get_name_call_func())
 
                     if not self.count_send_args_is_valid(func_args, list(func['args'].keys())):
-                        raise SyntaxException(f'{func_args}({len(func_args)}) arguments were passed, and '
-                                              f'{list(func["args"].keys())}({len(list(func["args"].keys()))}) '
-                                              f'were expected')
+                        raise FunctionException(f'{func_args}({len(func_args)}) arguments were passed, and '
+                                                f'{list(func["args"].keys())}({len(list(func["args"].keys()))}) '
+                                                f'were expected')
 
                     self.save_args_for_call_func(func_args, func['args'].keys())
 

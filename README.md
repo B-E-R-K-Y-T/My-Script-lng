@@ -131,4 +131,10 @@ SyntaxException 2
 ```
 
 
-https://www.youtube.com/watch?v=92IjrA362AI
+общие возможности ЯП 
+
+[https://www.youtube.com/watch?v=b_BpHXJyhHE](https://www.youtube.com/watch?v=b_BpHXJyhHE)
+
+вызов функций python
+
+[https://www.youtube.com/watch?v=sqP7jk1jH-0](https://www.youtube.com/watch?v=sqP7jk1jH-0)

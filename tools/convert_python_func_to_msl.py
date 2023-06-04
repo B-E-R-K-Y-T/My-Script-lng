@@ -1,5 +1,5 @@
 from msl_standard_library.math import Sum, Add, Len, Max, Min
-from msl_standard_library.utils import Print
+from msl_standard_library.utils import Print, Kill
 from msl_standard_library.operation_system import OS_command
 from tools.types import Int, Line
 from tools.parser import Var
@@ -13,6 +13,7 @@ _tree_standard_functions = {
     Min.__name__: {'func': Min, 'args': [-1]},
     OS_command.__name__: {'func': OS_command, 'args': ['command']},
     Print.__name__: {'func': Print, 'args': [-1]},
+    Kill.__name__: {'func': Kill, 'args': []},
 }
 MSL_CONVERT_TABLE = {
     Int.__name__: int,

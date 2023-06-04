@@ -1,21 +1,17 @@
 import sys
 
-from data.operators import ALL_OPERATORS
+from data.operators import ALL_OPERATORS, END_TRY, CATCH
 from tools.debug import print_debug, DEBUG, log
 from tools.exceptions.object_exceptions import FunctionException, TypeException, ObjectException
 from tools.exceptions.syntax_exceptions import SyntaxException
 from tools.parser import (Parser, set_try_catch, get_try_catchs, Function, set_func, get_func, get_table_functions,
                           set_var, delete_var, Var, CONVERT_TABLE, is_var_exists, get_var, get_vars,
-                          get_name_and_index_indexing_array, get_num_try_by_key)
+                          get_name_and_index_indexing_array, get_num_try_by_key, replace_dict)
 from tools.token_parser import TokenParser, TokenReader
 from tools.types import Int, Line
-from tools.exceptions.main_exception import MainException
+from tools.exceptions.main_exception import MainException, kill_process
 from tools.try_catch import Catch, StateCatch
-from colorama import init
-from colorama import Fore
 from tools.convert_python_func_to_msl import call_standard_func, find_func, is_func_accepts_inf_args
-
-init()
 
 
 class Interpreter:
@@ -138,9 +134,19 @@ class Interpreter:
             return True
         return False
 
+    @staticmethod
+    def check_valid_exception(num_line: int, line: str, exceptions: dict):
+        for name_try in exceptions:
+            if exceptions[name_try].get('end') is None:
+                kill_process(num_line, line, SyntaxException(f'Not found "{END_TRY}" operator!'))
+            elif len(exceptions[name_try].get('catchs')) == 1:
+                kill_process(num_line, line, SyntaxException(f'Not found "{CATCH}" operator!'))
+
     def handler_exception(self, num_line_exc: int, exc: MainException) -> StateCatch:
         exceptions = get_try_catchs()
+
         for exc_key in exceptions:
+
             start = int(exc_key[4:])
             end = int(exceptions[exc_key]['catchs'][1]['num_line'])
             jump = int(exceptions[exc_key]['end'])
@@ -155,6 +161,8 @@ class Interpreter:
 
                 print_debug(exc_name not in e.get_handlers(exceptions, exc_key))
 
+                # print((e.get_handlers(exceptions, exc_key)))
+
                 if exc_name not in e.get_handlers(exceptions, exc_key):
                     for _e in exceptions:
                         if get_num_try_by_key(exc_key) > get_num_try_by_key(_e):
@@ -166,11 +174,14 @@ class Interpreter:
                             else:
                                 end = int(exceptions[_e]['catchs'][1]['num_line'])
                                 jump = int(exceptions[exc_key]['end'])
+                else:
+                    end = int(exceptions[exc_key]['catchs'][1]['num_line'])
+                    jump = int(exceptions[exc_key]['end'])
 
-                                _interpreter = Interpreter(self.path, end + 1, end + 2, init_calls=False)
-                                _interpreter.run(check_border=False)
+                _interpreter = Interpreter(self.path, end + 1, end + 2, init_calls=False)
+                _interpreter.run(check_border=False)
 
-                                self.jump_to_num_line = jump + 1
+                self.jump_to_num_line = jump + 1
 
                 return StateCatch.PROCESSED
 
@@ -230,6 +241,7 @@ class Interpreter:
                     var.save_var(var.get_key(), var.get_value())
                 elif par.is_try():
                     self.save_try_catch(num_line - 1, def_try_num=num_line - 1, flag_is_try=False)
+                    self.check_valid_exception(num_line, line, get_try_catchs())
                 # TODO: Доделать
                 elif par.is_indexing():
                     name, index = get_name_and_index_indexing_array(line)
@@ -263,11 +275,11 @@ class Interpreter:
 
                     if Int.check_type(a) and Int.check_type(b):
                         res = int(get_var(a)) + int(get_var(b))
-                elif par.is_start_loop() and not self.is_loop:
+                elif par.is_start_loop():
                     start, stop = par.count_repeat_in_loop()
                     var_in_loop = par.get_var_in_loop()
 
-                    self.jump_to_num_line = self.loop_worker(num_line, start, stop, var_in_loop) + 2
+                    self.jump_to_num_line = self.loop_worker(num_line + 1, start, stop, var_in_loop) + 2
                 elif par.is_print():
                     print(*par.get_data_from_print())
                 elif par.is_call_func():
@@ -316,7 +328,7 @@ class Interpreter:
                 elif par.is_end_try():
                     continue
                 else:
-                    if not self.is_loop and line.replace('\n', '') not in ALL_OPERATORS:
+                    if replace_dict(line, {'\n': '', ' ': ''}) not in ALL_OPERATORS:
                         raise SyntaxException(f'Invalid syntax: {line=}')
             except MainException as e:
                 if DEBUG:
@@ -325,8 +337,7 @@ class Interpreter:
                 res = self.handler_exception(num_line, e)
 
                 if res == StateCatch.FAILED:
-                    print(Fore.RED + f'{num_line=}, {line=}\n\t{e}')
-                    sys.exit()
+                    kill_process(num_line, line, e)
 
                 continue
 
@@ -338,7 +349,8 @@ class Interpreter:
 if __name__ == '__main__':
     # commands = input('Enter path to script >>>').split(' ')
 
-    TEST = f'/home/berkyt/PycharmProjects/MyScriptLanguage/test10.txt'
+    TEST = f'/home/berkyt/PycharmProjects/MyScriptLanguage/test12.txt'
 
     interpreter = Interpreter(TEST)
     interpreter.run()
+

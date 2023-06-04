@@ -1,3 +1,11 @@
+import sys
+
+from colorama import init
+from colorama import Fore
+
+init()
+
+
 class MainException(Exception):
     def __init__(self, *args, default):
         self.default = default
@@ -15,3 +23,12 @@ class MainException(Exception):
             return f'{self.__class__.__name__}: {self.message}'
         else:
             return f'{self.__class__.__name__}: {self.default}'
+
+
+class KillProcess(Exception):
+    pass
+
+
+def kill_process(num_line: int, line: str, exception: MainException = KillProcess):
+    print(Fore.RED + f'{num_line=}, {line=}\n\t{exception}')
+    sys.exit()

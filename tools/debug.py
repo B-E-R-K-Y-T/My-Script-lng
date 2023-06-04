@@ -14,3 +14,4 @@ def log(func):
         return res
 
     return wrapper
+

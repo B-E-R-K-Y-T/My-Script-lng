@@ -188,12 +188,12 @@ class Parser:
         self.line = line.replace('\n', '')
 
     def is_try(self) -> bool:
-        if re.findall(pattern=r'[ ]*try[ ]+do', string=self.line) and self.line.endswith('do'):
+        if re.findall(pattern=r'^[ ]*try[ ]+do', string=self.line) and self.line.endswith('do'):
             return True
         return False
 
     def is_end_try(self) -> bool:
-        if re.findall(pattern=r'[ ]*end_try', string=self.line):
+        if re.findall(pattern=r'^[ ]*end_try', string=self.line):
             return True
         return False
 

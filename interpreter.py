@@ -198,6 +198,7 @@ class Interpreter:
                 if par.is_variable():
                     var = Var(line)
                     var.save_var(var.get_key(), var.get_value())
+                # TODO: Доделать
                 elif par.is_indexing():
                     name, index = get_name_and_index_indexing_array(line)
 
@@ -267,6 +268,9 @@ class Interpreter:
 
                     _interpreter = Interpreter(self.path, func['borders'][0], func['borders'][1])
                     _interpreter.run(check_border=False)
+
+                    for arg in func['args'].keys():
+                        delete_var(arg)
                 elif par.is_func():
                     func_name = par.get_name_defined_func()
                     if find_func(func_name):

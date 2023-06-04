@@ -1,5 +1,44 @@
 # My-Script-lng
 
+Общие возможности языка:
+
+```
+var x = 1;
+print x;
+
+try do
+    var x = 2;
+catch ObjectException do
+    for i=(1,4) do
+        print "ObjectException 1", "i: ", loop_i;
+    end_loop
+catch SyntaxException do
+    print "SyntaxException 2";
+end_try
+
+func test(x)
+    print "Hello world!", func_x;
+end_func
+
+test(12);
+
+Min(1, 2, 3, -1);
+
+# Создает папку
+OS_command("mkdir TEST");
+```
+
+Вывод:
+```
+1
+ObjectException 1 i:  1
+ObjectException 1 i:  2
+ObjectException 1 i:  3
+ObjectException 1 i:  4
+Hello world! 12
+-1
+```
+
 
 Пример кода
 ```

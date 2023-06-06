@@ -161,8 +161,6 @@ class Interpreter:
 
                 print_debug(exc_name not in e.get_handlers(exceptions, exc_key))
 
-                # print((e.get_handlers(exceptions, exc_key)))
-
                 if exc_name not in e.get_handlers(exceptions, exc_key):
                     for _e in exceptions:
                         if get_num_try_by_key(exc_key) > get_num_try_by_key(_e):

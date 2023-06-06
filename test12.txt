@@ -24,4 +24,12 @@ end_func
 test_wrapper_loops();
 
 # Убивает процесс
-Kill();
+# Kill();
+Print(12);
+
+
+test();
+
+func test()
+    print "1432";
+end_func

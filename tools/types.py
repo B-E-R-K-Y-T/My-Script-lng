@@ -11,7 +11,7 @@ class Type(ABC):
         raise NotImplemented
 
     @abstractmethod
-    def get_value(self):
+    def get_str_literal_value(self):
         raise NotImplemented
 
 
@@ -31,7 +31,7 @@ class Int(Type):
     def add(self, other: int):
         return self.value + other
 
-    def get_value(self) -> int:
+    def get_str_literal_value(self) -> int:
         return self.value
 
 
@@ -59,16 +59,16 @@ class Array(Type):
         for t in [Line, Int]:
             for item in array:
                 if t.check_type(item):
-                    res.append(t(item).get_value())
+                    res.append(t(item).get_str_literal_value())
 
         return res
 
-    def get_value(self) -> list:
+    def get_str_literal_value(self) -> list:
         return self.convert_str_to_array(self.value)
 
     def __getitem__(self, item):
         try:
-            return self.get_value()[item]
+            return self.get_str_literal_value()[item]
         except IndexError as e:
             raise IndexException(e)
 
@@ -86,8 +86,31 @@ class Line(Type):
             return True
         return False
 
-    def get_value(self) -> str:
+    def get_str_literal_value(self) -> str:
         return self.value
+
+
+class Boolean(Type):
+    def __init__(self, value: str):
+        if not self.check_type(value):
+            raise TypeException(f'This object "{value}" is not {Boolean.__name__}!')
+
+        self.value = value
+
+    @staticmethod
+    def check_type(value: str) -> bool:
+        if value in ['TRUE', 'FALSE']:
+            return True
+        return False
+
+    def get_str_literal_value(self) -> str:
+        return self.value
+
+    def get_real_value(self):
+        if self.value == 'TRUE':
+            return True
+        else:
+            return False
 
 
 if __name__ == '__main__':
@@ -97,3 +120,4 @@ if __name__ == '__main__':
     l = Line('"TETS"')
     # l = Line('TETS"')
     # l = Line('"TETS')
+    b = Boolean('TRUE')

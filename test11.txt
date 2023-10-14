@@ -29,7 +29,6 @@ func test(x, y, z)
     end_loop
 
     print "END_LOOP";
-
     try do
         print loop_i;
     catch ObjectException do

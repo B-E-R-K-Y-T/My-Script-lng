@@ -6,9 +6,9 @@ from tools.exceptions.object_exceptions import FunctionException, TypeException,
 from tools.exceptions.syntax_exceptions import SyntaxException
 from tools.parser import (Parser, set_try_catch, get_try_catchs, Function, set_func, get_func, get_table_functions,
                           set_var, delete_var, Var, CONVERT_TABLE, is_var_exists, get_var, get_vars,
-                          get_name_and_index_indexing_array, get_num_try_by_key, replace_dict)
+                          get_name_and_index_indexing_array, get_num_try_by_key, replace_dict, get_ifs, set_if, get_if)
 from tools.token_parser import TokenParser, TokenReader
-from tools.types import Int, Line
+from tools.types import Int, Line, Boolean
 from tools.exceptions.main_exception import MainException, kill_process
 from tools.try_catch import Catch, StateCatch
 from tools.convert_python_func_to_msl import call_standard_func, find_func, is_func_accepts_inf_args
@@ -16,17 +16,53 @@ from tools.convert_python_func_to_msl import call_standard_func, find_func, is_f
 
 class Interpreter:
     def __init__(self, path: str, jump_to_num_line: int = 0, end_line: int = ...,
-                 is_loop: bool = False, init_calls: bool = True, **flags):
+                 is_loop: bool = False, init_calls: bool = True, is_elseif_mode: bool = False, **flags):
         self.file = open(path)
         self.path = path
         self.jump_to_num_line = jump_to_num_line
         self.end_line = end_line
         self.is_loop = is_loop
         self.init_calls = init_calls
+        self.is_elseif_mode = is_elseif_mode
         self.tokens = self.get_tokens()
 
         if init_calls:
             self.save_funcs()
+            self.save_ifs()
+
+    def save_ifs(self, jump_line: int = 1, def_if_num: int = 0, flag_is_if: bool = False):
+        if_num = def_if_num
+        is_if = flag_is_if
+
+        for num_line, line in enumerate(open(self.path)):
+            if num_line < jump_line:
+                continue
+
+            par = Parser(line)
+
+            if par.is_commentary():
+                continue
+
+            if par.is_if():
+                if is_if:
+                    jump_line = self.save_ifs(num_line, def_if_num=num_line, flag_is_if=False)
+                    is_if = False
+                    continue
+                else:
+                    is_if = True
+
+                if_num = num_line
+                set_if(f'if_{if_num}', [num_line])
+            elif par.is_elseif():
+                if_obj = get_ifs()
+                if_obj[f'if_{if_num}'].append(num_line)
+            elif par.is_end_if():
+                if_obj = get_ifs()
+                if_obj[f'if_{if_num}'].append(num_line)
+
+                if is_if:
+                    print_debug(get_ifs())
+                    return num_line + 1
 
     def save_try_catch(self, jump_line: int = 1, def_try_num: int = 0, flag_is_try: bool = False):
         try_num = def_try_num
@@ -91,6 +127,35 @@ class Interpreter:
 
         return False
 
+    def if_worker(self, start_line, end_line=...):
+        end_if = None
+
+        for num_line, line in enumerate(open(self.path)):
+
+            if num_line < start_line:
+                continue
+
+            par = Parser(line)
+
+            if par.is_commentary():
+                continue
+
+            if par.is_end_if():
+                end_if = num_line
+                break
+
+        if end_if is None:
+            raise SyntaxException(f'Not found end if!')
+        else:
+            if end_line is not ...:
+                end_if = end_line
+
+            _interpreter = Interpreter(self.path, start_line, end_if,
+                                       is_loop=False, init_calls=False, is_elseif_mode=True)
+            _interpreter.run(False)
+
+        return end_if
+
     def loop_worker(self, start_line: int, start_num: int, end_num: int, name_var: str) -> int:
         end_loop = None
 
@@ -123,7 +188,7 @@ class Interpreter:
     def save_args_for_call_func(args: list, name_args: list):
         for arg, name_arg in zip(args, name_args):
             var = Var(arg)
-            if var.get_type(arg) not in [Int, Line]:
+            if var.get_type(arg) not in [Int, Line, Boolean]:
                 raise TypeException(f'{arg} is invalid!')
             else:
                 set_var(name_arg, CONVERT_TABLE[var.get_type(arg).__name__](arg))
@@ -206,6 +271,15 @@ class Interpreter:
 
         print(tr.get_all_values_arrays())
 
+    @staticmethod
+    def bool_expr_handler(expr: str) -> bool:
+        var = get_var(expr)
+
+        if var.get_real_value():
+            return True
+        else:
+            return False
+
     def run(self, check_border: bool = True):
         for num_line, line in enumerate(self.file):
             vars_in_line = []
@@ -236,7 +310,7 @@ class Interpreter:
 
                 if par.is_variable():
                     var = Var(line)
-                    var.save_var(var.get_key(), var.get_value())
+                    var.save_var(var.get_key(), var.get_str_literal_value())
                 elif par.is_try():
                     self.save_try_catch(num_line - 1, def_try_num=num_line - 1, flag_is_try=False)
                     self.check_valid_exception(num_line, line, get_try_catchs())
@@ -249,17 +323,17 @@ class Interpreter:
                     vars_in_line.append(var)
                 elif par.is_calculated_variable():
                     var = Var(line)
-                    _par = Parser(var.get_value())
+                    _par = Parser(var.get_str_literal_value())
 
                     if _par.is_added():
-                        _line = var.get_value().replace(' ', '')
+                        _line = var.get_str_literal_value().replace(' ', '')
                         a, b = _line.split('+')
 
                         res = None
 
                         if is_var_exists(a) and is_var_exists(b):
                             if isinstance(get_var(a), Int) and isinstance(get_var(b), Int):
-                                res = int(get_var(a).get_value()) + int(get_var(b).get_value())
+                                res = int(get_var(a).get_str_literal_value()) + int(get_var(b).get_str_literal_value())
 
                         if res is None:
                             raise ObjectException(f'The expression returned None.')
@@ -325,6 +399,42 @@ class Interpreter:
                     continue
                 elif par.is_end_try():
                     continue
+                elif par.is_elseif():
+                    if self.is_elseif_mode:
+                        expr = par.get_if_expr()
+                        res = self.bool_expr_handler(expr)
+
+                        if res:
+                            self.jump_to_num_line = self.if_worker(num_line + 1, end_line=self.end_line) + 2
+                            return True
+                        else:
+                            return False
+                    else:
+                        continue
+                elif par.is_if():
+                    expr = par.get_if_expr()
+                    res = self.bool_expr_handler(expr)
+                    borders_if = get_ifs()[f'if_{num_line - 1}'][1:]
+
+                    if res:
+                        self.jump_to_num_line = self.if_worker(num_line + 1) + 2
+                    elif len(borders_if) >= 2:
+                        res_elseif = False
+                        for idx, border in enumerate(borders_if[:-1]):
+                            # print(border+1, borders_if[idx+1], num_line, line)
+                            if not res_elseif:
+                                _interpreter = Interpreter(self.path,
+                                                           border+1,
+                                                           borders_if[idx+1],
+                                                           is_loop=False,
+                                                           init_calls=False,
+                                                           is_elseif_mode=True)
+                                res_elseif = _interpreter.run(False)
+                        self.jump_to_num_line = get_if(f'if_{num_line - 1}')[-1] + 1
+                    else:
+                        self.jump_to_num_line = get_if(f'if_{num_line - 1}')[-1] + 1
+                elif par.is_end_if():
+                    continue
                 else:
                     if replace_dict(line, {'\n': '', ' ': ''}) not in ALL_OPERATORS:
                         raise SyntaxException(f'Invalid syntax: {line=}')
@@ -347,7 +457,7 @@ class Interpreter:
 if __name__ == '__main__':
     # commands = input('Enter path to script >>>').split(' ')
 
-    TEST = f'/home/berkyt/PycharmProjects/MyScriptLanguage/test12.txt'
+    TEST = f'test13.txt'
 
     interpreter = Interpreter(TEST)
     interpreter.run()

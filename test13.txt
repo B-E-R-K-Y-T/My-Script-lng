@@ -1,0 +1,30 @@
+var b = FALSE;
+var b1 = TRUE;
+var b2 = TRUE;
+var b3 = TRUE;
+
+# print b, b1;
+
+if (b) then
+    if (b1) then
+        print "if2";
+    end_if
+
+    print "if1";
+end_if
+
+
+if (b) then
+    print "if3";
+elseif (b2) then
+    print "elif2";
+
+    if (b) then
+        print "asdasd";
+    elseif (b3) then
+        print "elif3123";
+    end_if
+
+end_if
+
+print "w3er";

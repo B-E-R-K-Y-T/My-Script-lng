@@ -2,14 +2,16 @@ import re
 
 from data.operators import EQUAL
 from tools.exceptions.object_exceptions import ObjectException, TypeException, FunctionException
-from tools.types import Int, Line, Array, Type
+from tools.types import Int, Line, Array, Type, Boolean
 
 _tree_variables = {}
 _tree_functions = {}
 _tree_try_catch = {}
+_tree_if = {}
 CONVERT_TABLE = {
     Int.__name__: Int,
     Line.__name__: Line,
+    Boolean.__name__: Boolean,
 }
 
 
@@ -73,6 +75,18 @@ def set_try_catch(key: str, value):
     _tree_try_catch[key] = value
 
 
+def get_ifs() -> dict:
+    return _tree_if
+
+
+def get_if(key: str):
+    return _tree_if[key]
+
+
+def set_if(key, value):
+    _tree_if[key] = value
+
+
 def get_func(key: str) -> dict:
     if not is_func_exists(key):
         raise FunctionException(f'This function: "{key}" not exist!')
@@ -113,12 +127,12 @@ class Var:
     def get_key(self):
         return self.key
 
-    def get_value(self):
+    def get_str_literal_value(self):
         return self.value
 
     @staticmethod
     def get_type(value):
-        for t in [Int, Line, Array]:
+        for t in [Int, Line, Array, Boolean]:
             if t.check_type(value):
                 return t
 
@@ -134,6 +148,8 @@ class Var:
                 _tree_variables[key] = Line(value)
             elif self.get_type(value) == Array:
                 _tree_variables[key] = Array(value)
+            elif self.get_type(value) == Boolean:
+                _tree_variables[key] = Boolean(value)
             else:
                 raise TypeException(f'Error type!')
 
@@ -187,6 +203,16 @@ class Parser:
     def __init__(self, line: str):
         self.line = line.replace('\n', '')
 
+    def is_if(self) -> bool:
+        if re.findall(pattern=r'^[ ]*if[ ]+\([ ]*\w+[ ]*\)[ ]+then', string=self.line):
+            return True
+        return False
+
+    def is_elseif(self) -> bool:
+        if re.findall(pattern=r'^[ ]*elseif[ ]+\([ ]*\w+[ ]*\)[ ]+then', string=self.line):
+            return True
+        return False
+
     def is_try(self) -> bool:
         if re.findall(pattern=r'^[ ]*try[ ]+do', string=self.line) and self.line.endswith('do'):
             return True
@@ -194,6 +220,11 @@ class Parser:
 
     def is_end_try(self) -> bool:
         if re.findall(pattern=r'^[ ]*end_try', string=self.line):
+            return True
+        return False
+
+    def is_end_if(self) -> bool:
+        if re.findall(pattern=r'^[ ]*end_if', string=self.line):
             return True
         return False
 
@@ -278,6 +309,11 @@ class Parser:
             return True
         return False
 
+    def get_if_expr(self):
+        expr = re.findall(pattern=r'\([\d\w]+\)', string=self.line)[0]
+
+        return expr[1:-1]
+
     def get_data_from_print(self) -> list:
         args = self.line[:-1].split('print')
         args = [arg for arg in args if not arg.isspace() and arg][0].split(',')
@@ -288,7 +324,7 @@ class Parser:
             if '"' not in r:
                 r = r.replace(' ', '')
 
-                var = get_var(r).get_value()
+                var = get_var(r).get_str_literal_value()
 
                 if isinstance(var, str):
                     var = var.replace('"', '')
@@ -315,10 +351,10 @@ if __name__ == '__main__':
     print(p.is_variable())
 
     v = Var(test)
-    print(v.get_value())
+    print(v.get_str_literal_value())
     print(v.get_key())
     v = Var('var d = x + y;')
-    print(v.get_value())
+    print(v.get_str_literal_value())
     print(v.get_key())
 
     p = Parser('1+ +1')
@@ -330,5 +366,5 @@ if __name__ == '__main__':
     test = 'var arr = {1,2,3};'
 
     v = Var(test)
-    print(v.get_value())
+    print(v.get_str_literal_value())
     print(v.get_key())

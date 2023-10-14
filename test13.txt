@@ -37,6 +37,7 @@ func test()
     end_if
 end_func
 
+print "SEPARATOR";
 
 test();
 

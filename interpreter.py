@@ -1,3 +1,4 @@
+import os
 import sys
 
 from data.operators import ALL_OPERATORS, END_TRY, CATCH
@@ -455,10 +456,7 @@ class Interpreter:
 
 
 if __name__ == '__main__':
-    # commands = input('Enter path to script >>>').split(' ')
+    commands = input('Enter path to script >>>').split(' ')
 
-    TEST = f'test13.txt'
-
-    interpreter = Interpreter(TEST)
+    interpreter = Interpreter(commands[0])
     interpreter.run()
-

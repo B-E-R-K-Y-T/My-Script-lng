@@ -139,19 +139,19 @@ class Var:
         raise TypeException(f'Invalid type! {value=}')
 
     def save_var(self, key, value):
-        if is_var_exists(key):
-            raise ObjectException(f'This variable "{key}" already exist!')
+        # if is_var_exists(key):
+        #     raise ObjectException(f'This variable "{key}" already exist!')
+        # else:
+        if self.get_type(value) == Int:
+            _tree_variables[key] = Int(value)
+        elif self.get_type(value) == Line:
+            _tree_variables[key] = Line(value)
+        elif self.get_type(value) == Array:
+            _tree_variables[key] = Array(value)
+        elif self.get_type(value) == Boolean:
+            _tree_variables[key] = Boolean(value)
         else:
-            if self.get_type(value) == Int:
-                _tree_variables[key] = Int(value)
-            elif self.get_type(value) == Line:
-                _tree_variables[key] = Line(value)
-            elif self.get_type(value) == Array:
-                _tree_variables[key] = Array(value)
-            elif self.get_type(value) == Boolean:
-                _tree_variables[key] = Boolean(value)
-            else:
-                raise TypeException(f'Error type!')
+            raise TypeException(f'Error type!')
 
 
 class Function:

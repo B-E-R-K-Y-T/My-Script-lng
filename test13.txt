@@ -20,9 +20,9 @@ elseif (b2) then
     print "elif2";
 
     if (b) then
-        print "asdasd";
+        print "nested_if1";
     elseif (b3) then
-        print "elif3123";
+        print "nested_elif1";
     end_if
 
 end_if

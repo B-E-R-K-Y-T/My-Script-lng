@@ -36,7 +36,7 @@ def files_in_folder_on_pattern(path, file_name):
 
 
 if __name__ == '__main__':
-    tests = sorted(files_in_folder_on_pattern(get_this_dir(), 'test'))
+    tests = files_in_folder_on_pattern(get_this_dir(), 'test')
 
     for i in range(1, len(tests)+1):
         TEST = f'test{i}.txt'

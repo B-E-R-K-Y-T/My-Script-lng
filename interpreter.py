@@ -1,6 +1,3 @@
-import os
-import sys
-
 from data.operators import ALL_OPERATORS, END_TRY, CATCH
 from tools.debug import print_debug, DEBUG, log
 from tools.exceptions.object_exceptions import FunctionException, TypeException, ObjectException
@@ -53,13 +50,16 @@ class Interpreter:
                     is_if = True
 
                 if_num = num_line
-                set_if(f'if_{if_num}', [num_line])
+                set_if(f'if_{if_num}', {'if': num_line, 'elseif': [], 'else': ..., 'end_if': ...})
             elif par.is_elseif():
                 if_obj = get_ifs()
-                if_obj[f'if_{if_num}'].append(num_line)
+                if_obj[f'if_{if_num}']['elseif'].append(num_line)
+            elif par.is_else():
+                if_obj = get_ifs()
+                if_obj[f'if_{if_num}']['else'] = num_line
             elif par.is_end_if():
                 if_obj = get_ifs()
-                if_obj[f'if_{if_num}'].append(num_line)
+                if_obj[f'if_{if_num}']['end_if'] = num_line
 
                 if is_if:
                     print_debug(get_ifs())
@@ -412,28 +412,45 @@ class Interpreter:
                             return False
                     else:
                         continue
+                elif par.is_else():
+                    continue
                 elif par.is_if():
                     expr = par.get_if_expr()
                     res = self.bool_expr_handler(expr)
-                    borders_if = get_ifs()[f'if_{num_line - 1}'][1:]
+                    elseif = get_ifs()[f'if_{num_line - 1}']['elseif']
+                    _else = get_ifs()[f'if_{num_line - 1}']['else']
+                    end_if = get_ifs()[f'if_{num_line - 1}']['end_if']
+
+                    default_end_line_elif = _else if _else is not ... else end_if
 
                     if res:
                         self.jump_to_num_line = self.if_worker(num_line + 1) + 2
-                    elif len(borders_if) >= 2:
+                    elif elseif:
                         res_elseif = False
-                        for idx, border in enumerate(borders_if[:-1]):
-                            # print(border+1, borders_if[idx+1], num_line, line)
+
+                        for idx, border in enumerate(elseif):
+                            # print(border+1, elseif, num_line, line)
                             if not res_elseif:
                                 _interpreter = Interpreter(self.path,
                                                            border+1,
-                                                           borders_if[idx+1],
+                                                           elseif[idx+1] if len(elseif) < idx+1 else default_end_line_elif+1,
                                                            is_loop=False,
                                                            init_calls=False,
                                                            is_elseif_mode=True)
                                 res_elseif = _interpreter.run(False)
-                        self.jump_to_num_line = get_if(f'if_{num_line - 1}')[-1] + 1
+                        self.jump_to_num_line = get_if(f'if_{num_line - 1}')['end_if'] + 1
                     else:
-                        self.jump_to_num_line = get_if(f'if_{num_line - 1}')[-1] + 1
+                        self.jump_to_num_line = get_if(f'if_{num_line - 1}')['end_if'] + 1
+
+                    if _else is not ...:
+                        _interpreter = Interpreter(self.path,
+                                                   _else+1,
+                                                   end_if+1,
+                                                   is_loop=False,
+                                                   init_calls=False)
+                        _interpreter.run(False)
+                        self.jump_to_num_line = get_if(f'if_{num_line - 1}')['end_if'] + 1
+
                 elif par.is_end_if():
                     continue
                 else:
@@ -456,7 +473,9 @@ class Interpreter:
 
 
 if __name__ == '__main__':
-    commands = input('Enter path to script >>>').split(' ')
+    # commands = input('Enter path to script >>>').split(' ')
 
-    interpreter = Interpreter(commands[0])
+    TEST = 'test14.txt'
+
+    interpreter = Interpreter(TEST)
     interpreter.run()

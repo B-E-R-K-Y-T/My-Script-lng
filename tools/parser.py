@@ -208,6 +208,11 @@ class Parser:
             return True
         return False
 
+    def is_else(self) -> bool:
+        if re.findall(pattern=r'^[ ]*else', string=self.line):
+            return True
+        return False
+
     def is_elseif(self) -> bool:
         if re.findall(pattern=r'^[ ]*elseif[ ]+\([ ]*\w+[ ]*\)[ ]+then', string=self.line):
             return True

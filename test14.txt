@@ -1,0 +1,20 @@
+var bool = FALSE;
+var b = FALSE;
+var b1 = TRUE;
+
+if (bool) then
+    print "Hello!";
+elseif (b) then
+    print "TEST";
+elseif (b) then
+    print "TEST";
+else
+    if (bool) then
+        print "111";
+    else
+        print "Bye1";
+    end_if
+
+    print "Bye";
+end_if
+

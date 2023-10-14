@@ -28,3 +28,16 @@ elseif (b2) then
 end_if
 
 print "w3er";
+
+func test()
+    var x = TRUE;
+
+    if (x) then
+        print "HELLO!!!!";
+    end_if
+end_func
+
+
+test();
+
+print x;

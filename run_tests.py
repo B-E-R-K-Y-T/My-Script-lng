@@ -3,6 +3,17 @@ import os
 from interpreter import Interpreter
 
 
+def get_this_dir():
+    sep = ''
+
+    if os.name == 'posix':
+        sep = '/'
+    elif os.name == 'nt':
+        sep = '\\'
+
+    return __file__[:__file__.rfind(sep)]
+
+
 def files_in_folder_on_pattern(path, file_name):
     """
    Возвращает список определенных файлов в директории.
@@ -25,7 +36,7 @@ def files_in_folder_on_pattern(path, file_name):
 
 
 if __name__ == '__main__':
-    tests = sorted(files_in_folder_on_pattern('/home/berkyt/PycharmProjects/MyScriptLanguage', 'test'))
+    tests = sorted(files_in_folder_on_pattern(get_this_dir(), 'test'))
 
     for i in range(1, len(tests)+1):
         TEST = f'test{i}.txt'

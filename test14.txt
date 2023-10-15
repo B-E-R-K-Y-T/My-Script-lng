@@ -9,7 +9,7 @@ elseif (b) then
 elseif (b) then
     print "TEST";
 else
-    if (bool) then
+    if (b1) then
         print "111";
     else
         print "Bye1";

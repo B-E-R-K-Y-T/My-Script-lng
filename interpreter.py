@@ -14,7 +14,8 @@ from tools.convert_python_func_to_msl import call_standard_func, find_func, is_f
 
 class Interpreter:
     def __init__(self, path: str, jump_to_num_line: int = 0, end_line: int = ...,
-                 is_loop: bool = False, init_calls: bool = True, is_elseif_mode: bool = False, **flags):
+                 is_loop: bool = False, init_calls: bool = True, is_elseif_mode: bool = False,
+                 is_else_mode: bool = False, **flags):
         self.file = open(path)
         self.path = path
         self.jump_to_num_line = jump_to_num_line
@@ -22,6 +23,7 @@ class Interpreter:
         self.is_loop = is_loop
         self.init_calls = init_calls
         self.is_elseif_mode = is_elseif_mode
+        self.is_else_mode = is_else_mode
         self.tokens = self.get_tokens()
 
         if init_calls:
@@ -62,8 +64,9 @@ class Interpreter:
                 if_obj[f'if_{if_num}']['end_if'] = num_line
 
                 if is_if:
-                    print_debug(get_ifs())
                     return num_line + 1
+                else:
+                    print_debug(get_ifs())
 
     def save_try_catch(self, jump_line: int = 1, def_try_num: int = 0, flag_is_try: bool = False):
         try_num = def_try_num
@@ -281,6 +284,9 @@ class Interpreter:
         else:
             return False
 
+    def __get_id_interpreter(self):
+        return f'Interpreter ID: {"".join(s for s in str(self) if s.isdigit())}'
+
     def run(self, check_border: bool = True):
         for num_line, line in enumerate(self.file):
             vars_in_line = []
@@ -289,7 +295,7 @@ class Interpreter:
             if num_line < self.jump_to_num_line:
                 continue
 
-            print_debug(f'Interpreter ID: {"".join(s for s in str(self) if s.isdigit())}, {num_line=}')
+            print_debug(f'{self.__get_id_interpreter}, {num_line=}')
 
             if self.end_line is not ...:
                 if num_line > self.end_line:
@@ -412,9 +418,8 @@ class Interpreter:
                             return False
                     else:
                         continue
-                elif par.is_else():
-                    continue
                 elif par.is_if():
+                    print(self.__get_id_interpreter())
                     expr = par.get_if_expr()
                     res = self.bool_expr_handler(expr)
                     elseif = get_ifs()[f'if_{num_line - 1}']['elseif']
@@ -428,9 +433,10 @@ class Interpreter:
                     elif elseif:
                         res_elseif = False
 
+
                         for idx, border in enumerate(elseif):
-                            # print(border+1, elseif, num_line, line)
                             if not res_elseif:
+                                # print(border+1, elseif[idx+1] if len(elseif) < idx+1 else default_end_line_elif+1, num_line, line)
                                 _interpreter = Interpreter(self.path,
                                                            border+1,
                                                            elseif[idx+1] if len(elseif) < idx+1 else default_end_line_elif+1,
@@ -442,7 +448,7 @@ class Interpreter:
                     else:
                         self.jump_to_num_line = get_if(f'if_{num_line - 1}')['end_if'] + 1
 
-                    if _else is not ...:
+                    if _else is not ... and not res:
                         _interpreter = Interpreter(self.path,
                                                    _else+1,
                                                    end_if+1,
@@ -450,7 +456,6 @@ class Interpreter:
                                                    init_calls=False)
                         _interpreter.run(False)
                         self.jump_to_num_line = get_if(f'if_{num_line - 1}')['end_if'] + 1
-
                 elif par.is_end_if():
                     continue
                 else:

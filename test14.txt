@@ -11,10 +11,21 @@ elseif (b) then
 else
     if (b1) then
         print "111";
+
+        if (b1) then
+            print "222";
+            if (b) then
+                print "333";
+            else
+                print "Bye3";
+            end_if
+        else
+            print "Bye2";
+        end_if
+
     else
         print "Bye1";
     end_if
 
     print "Bye";
 end_if
-

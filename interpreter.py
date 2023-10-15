@@ -15,7 +15,8 @@ from tools.convert_python_func_to_msl import call_standard_func, find_func, is_f
 class Interpreter:
     def __init__(self, path: str, jump_to_num_line: int = 0, end_line: int = ...,
                  is_loop: bool = False, init_calls: bool = True, is_elseif_mode: bool = False,
-                 is_else_mode: bool = False, **flags):
+                 is_else_mode: bool = False, is_sub_interpreter: bool = False, **flags):
+        self.is_sub_interpreter = is_sub_interpreter
         self.file = open(path)
         self.path = path
         self.jump_to_num_line = jump_to_num_line
@@ -67,6 +68,7 @@ class Interpreter:
                     return num_line + 1
                 else:
                     print_debug(get_ifs())
+                    return num_line + 1
 
     def save_try_catch(self, jump_line: int = 1, def_try_num: int = 0, flag_is_try: bool = False):
         try_num = def_try_num
@@ -144,7 +146,7 @@ class Interpreter:
             if par.is_commentary():
                 continue
 
-            if par.is_end_if():
+            if par.is_end_if() or par.is_elseif() or par.is_else():
                 end_if = num_line
                 break
 
@@ -155,7 +157,7 @@ class Interpreter:
                 end_if = end_line
 
             _interpreter = Interpreter(self.path, start_line, end_if,
-                                       is_loop=False, init_calls=False, is_elseif_mode=True)
+                                       is_loop=False, init_calls=False, is_elseif_mode=True, is_sub_interpreter=True)
             _interpreter.run(False)
 
         return end_if
@@ -182,7 +184,8 @@ class Interpreter:
         else:
             for i in range(start_num, end_num + 1):
                 set_var(name_var, Int(str(i)))
-                _interpreter = Interpreter(self.path, start_line, end_loop, is_loop=True, init_calls=False)
+                _interpreter = Interpreter(self.path, start_line, end_loop,
+                                           is_loop=True, init_calls=False, is_sub_interpreter=True)
                 _interpreter.run(False)
 
             delete_var(name_var)
@@ -245,7 +248,7 @@ class Interpreter:
                     end = int(exceptions[exc_key]['catchs'][1]['num_line'])
                     jump = int(exceptions[exc_key]['end'])
 
-                _interpreter = Interpreter(self.path, end + 1, end + 2, init_calls=False)
+                _interpreter = Interpreter(self.path, end + 1, end + 2, init_calls=False, is_sub_interpreter=True)
                 _interpreter.run(check_border=False)
 
                 self.jump_to_num_line = jump + 1
@@ -295,7 +298,7 @@ class Interpreter:
             if num_line < self.jump_to_num_line:
                 continue
 
-            print_debug(f'{self.__get_id_interpreter}, {num_line=}')
+            print_debug(f'{self.__get_id_interpreter()}, {num_line=}')
 
             if self.end_line is not ...:
                 if num_line > self.end_line:
@@ -389,7 +392,7 @@ class Interpreter:
 
                     self.save_args_for_call_func(func_args, func['args'].keys())
 
-                    _interpreter = Interpreter(self.path, func['borders'][0], func['borders'][1])
+                    _interpreter = Interpreter(self.path, func['borders'][0], func['borders'][1], is_sub_interpreter=True)
                     _interpreter.run(check_border=False)
 
                     print_debug(get_vars())
@@ -419,7 +422,6 @@ class Interpreter:
                     else:
                         continue
                 elif par.is_if():
-                    print(self.__get_id_interpreter())
                     expr = par.get_if_expr()
                     res = self.bool_expr_handler(expr)
                     elseif = get_ifs()[f'if_{num_line - 1}']['elseif']
@@ -430,32 +432,45 @@ class Interpreter:
 
                     if res:
                         self.jump_to_num_line = self.if_worker(num_line + 1) + 2
+                        if self.is_sub_interpreter:
+                            # print(f'{end_if=}, ', get_ifs()[f'if_{num_line - 1}'])
+                            return end_if
                     elif elseif:
                         res_elseif = False
-
 
                         for idx, border in enumerate(elseif):
                             if not res_elseif:
                                 # print(border+1, elseif[idx+1] if len(elseif) < idx+1 else default_end_line_elif+1, num_line, line)
                                 _interpreter = Interpreter(self.path,
-                                                           border+1,
+                                                           border + 1,
                                                            elseif[idx+1] if len(elseif) < idx+1 else default_end_line_elif+1,
                                                            is_loop=False,
                                                            init_calls=False,
-                                                           is_elseif_mode=True)
+                                                           is_elseif_mode=True,
+                                                           is_sub_interpreter=True)
                                 res_elseif = _interpreter.run(False)
                         self.jump_to_num_line = get_if(f'if_{num_line - 1}')['end_if'] + 1
+
+                        if self.is_sub_interpreter:
+                            return self.jump_to_num_line
                     else:
                         self.jump_to_num_line = get_if(f'if_{num_line - 1}')['end_if'] + 1
 
                     if _else is not ... and not res:
                         _interpreter = Interpreter(self.path,
-                                                   _else+1,
-                                                   end_if+1,
+                                                   _else + 1,
+                                                   end_if + 1,
                                                    is_loop=False,
-                                                   init_calls=False)
-                        _interpreter.run(False)
-                        self.jump_to_num_line = get_if(f'if_{num_line - 1}')['end_if'] + 1
+                                                   init_calls=False,
+                                                   is_sub_interpreter=True)
+                        sub_end_if = _interpreter.run(False)
+                        self.jump_to_num_line = (sub_end_if if sub_end_if else end_if) + 1
+
+                        if self.is_sub_interpreter:
+                            return self.jump_to_num_line
+
+                        # print(f'{self.jump_to_num_line=} if_{num_line - 1}', f'{sub_end_if=}')
+                        # print(get_ifs())
                 elif par.is_end_if():
                     continue
                 else:

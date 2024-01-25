@@ -1,6 +1,16 @@
 # My-Script-lng
 
-Общие возможности языка:
+
+общие возможности ЯП 
+
+[https://www.youtube.com/watch?v=b_BpHXJyhHE](https://www.youtube.com/watch?v=b_BpHXJyhHE)
+
+вызов функций python
+
+[https://www.youtube.com/watch?v=sqP7jk1jH-0](https://www.youtube.com/watch?v=sqP7jk1jH-0)
+
+
+Примеры кода:
 
 ```
 var x = 1;
@@ -360,14 +370,3 @@ Tim:  0
 Tim:  1
 Tim:  2
 ```
-
-
-
-
-общие возможности ЯП 
-
-[https://www.youtube.com/watch?v=b_BpHXJyhHE](https://www.youtube.com/watch?v=b_BpHXJyhHE)
-
-вызов функций python
-
-[https://www.youtube.com/watch?v=sqP7jk1jH-0](https://www.youtube.com/watch?v=sqP7jk1jH-0)
